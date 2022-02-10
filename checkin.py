@@ -100,7 +100,7 @@ def start():
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        str = '[pro] %s , you have %s days left.' % (mess, time)
+        str = '[base] %s , you have %s days left.' % (mess, time)
         if sever == '1' or sever == 'on':
             requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+str)
     else:
