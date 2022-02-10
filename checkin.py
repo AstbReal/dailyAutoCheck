@@ -30,9 +30,10 @@ def start():
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        print(time)
+        str = '[base] you have %s days left' % (time)
+        print(str)
         if sever == 'on':
-            requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+mess+'，you have base'+time+' days left base')
+            requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+mess+ str)
     else:
         requests.get('https://sc.ftqq.com/' + sckey + '.send?text=cookie过期')
 
