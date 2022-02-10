@@ -83,9 +83,8 @@ def send_to_wecom_markdown(text,wecom_cid,wecom_aid,wecom_secret,wecom_touid='@a
 def start():
     url= "https://glados.rocks/api/user/checkin"
     url2= "https://glados.rocks/api/user/status"
+    url3= "https://glados.rocks/api/user/traffic"
     referer = 'https://glados.rocks/console/checkin'
-    #checkin = requests.post(url,headers={'cookie': cookie ,'referer': referer })
-    #state =  requests.get(url2,headers={'cookie': cookie ,'referer': referer})
     origin = "https://glados.rocks"
     useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"
     payload={
@@ -93,19 +92,19 @@ def start():
     }
     checkin = requests.post(url,headers={'cookie': cookie ,'referer': referer,'origin':origin,'user-agent':useragent,'content-type':'application/json;charset=UTF-8'},data=json.dumps(payload))
     state =  requests.get(url2,headers={'cookie': cookie ,'referer': referer,'origin':origin,'user-agent':useragent})
-    # print(res)
-
+    traffic =  requests.get(url3,headers={'cookie': cookie ,'referer': referer,'origin':origin,'user-agent':useragent})
+    today = traffic.json()['data']['today']
     str = "cookie过期"
     if 'message' in checkin.text:
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        str = '[base] %s , you have %s days left.' % (mess, time)
+        str = '[base] %s , you have %s days left. use: %.3f G' % (mess, time,today/1024/1024/1024)
         if sever == '1' or sever == 'on':
             requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+str)
     else:
         requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+str)
-
+		
     ret = send_to_wecom(str, "wwc216d22335b2bb48", "1000002", wsecret) # 换成自己的企业微信id
     print(str, ret)
 
