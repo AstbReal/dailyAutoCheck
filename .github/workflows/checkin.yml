@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-    - cron:  0 10,16 * * * 
+    - cron:  0 11,17 * * * 
       # 
       # https://tool.lu/crontab/
       # https://datetime360.com/cn/utc-cst-china-time/
@@ -36,7 +36,7 @@ jobs:
       run: |
         python3 checkin.py 
       env: 
+        WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
         SERVE: ${{ secrets.SERVE }}
         SCKEY: ${{ secrets.SCKEY }}
         COOKIE: ${{ secrets.COOKIE }}
-
