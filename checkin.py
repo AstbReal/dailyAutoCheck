@@ -99,12 +99,7 @@ def start():
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        str = '[base] %s , you have %s days left. use: %.3f G' % (mess, time,today/1024/1024/1024)
-        if sever == '1' or sever == 'on':
-            requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+str)
-    else:
-        requests.get('https://sc.ftqq.com/' + sckey + '.send?text='+str)
-		
+        str = '[base] %s , you have %s days left. use: %.3f G' % (mess, time,today/1024/1024/1024)	
     ret = send_to_wecom(str, "wwc216d22335b2bb48", "1000002", wsecret) # 换成自己的企业微信id
     print(str, ret)
 
