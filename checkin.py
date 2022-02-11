@@ -99,7 +99,9 @@ def start():
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        str = '[base] %s , you have %s days left. use: %.3f G' % (mess, time,today/1024/1024/1024)	
+        total = 200
+        use = today/1024/1024/1024
+        str = '[base] %s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, use/total*100)
     ret = send_to_wecom(str, "wwc216d22335b2bb48", "1000002", wsecret) # 换成自己的企业微信id
     print(str, ret)
 
