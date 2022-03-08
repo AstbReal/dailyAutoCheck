@@ -1,4 +1,4 @@
-### 最近恢复每天签到都会+天数了~喜大普奔4
+### 最近签到可能只有30%几率签到领一天，建议教育邮箱搞起来
 # glados-checkin
 ![glados-checkin](https://github.com/hbstarjason/glados-checkin/workflows/glados-checkin/badge.svg)
 
