@@ -18,7 +18,7 @@
 
 2、通过cookies自动登录（[https://glados.rocks/console/checkin](https://glados.rocks/console/checkin))，脚本会自动进行checkin。
 
-3、然后通过“Server酱”（[http://sc.ftqq.com/3.version](http://sc.ftqq.com/3.version))，自动发通知到微信上。
+3、然后通过“Server酱”（[https://sct.ftqq.com/](https://sct.ftqq.com/))，自动发通知到微信上。
 
 
 
