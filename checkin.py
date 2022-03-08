@@ -110,7 +110,7 @@ def start():
         mess = checkin.json()['message']
         time = state.json()['data']['leftDays']
         time = time.split('.')[0]
-        total = 50
+        total = 200
         use = today/1024/1024/1024
         rat = use/total*100
         str_rat = '%.2f' % (rat)
