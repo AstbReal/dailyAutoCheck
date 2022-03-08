@@ -112,11 +112,13 @@ def start():
         time = time.split('.')[0]
         total = 50
         use = today/1024/1024/1024
-        str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, use/total*100)
+        rat = use/total*100
+        str_rat = '%.2f' % (rat)
+        str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
         ret = send_to_wecom(str, "wwc216d22335b2bb48","1000002", wsecret)  # 换成自己的企业微信id
         print(str, ret)
         if sever == 'on':
-            requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=Glados_edu签到&desp=' + str )
+            requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' + mess + '余' + time +'天,用' + str_rat + '%&desp=' + str )
     else:
         requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=Glados_edu_cookie过期')
 
