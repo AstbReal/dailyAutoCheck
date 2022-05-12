@@ -44,6 +44,6 @@
    
 #### 更新：
 ###[2022.5.12] 
-· 修复出现 token error的问题 
+1. 修复出现 token error的问题 
 GLaDOS checkin 接口 request payload 中的 token 由 "glados_network" 更改为 "glados.network"
 
