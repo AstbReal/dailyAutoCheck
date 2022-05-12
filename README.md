@@ -41,3 +41,9 @@
 6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
    [*<u>如果是Edu邮箱，可免费升级为360天。 操作方法：教育邮箱注册后，点击官网最下方 Edu plan 去申请</u>*]
+   
+#### 更新
+###[2022.5.12]
+· 修复出现 token error的问题
+GLaDOS checkin 接口 request payload 中的 token 由 "glados_network" 更改为 "glados.network"
+
