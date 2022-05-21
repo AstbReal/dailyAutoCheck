@@ -38,5 +38,5 @@ jobs:
       env: 
         WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
         SERVE: ${{ secrets.SERVE }}
-        SCKEY: ${{ secrets.SCKEY }}
-        COOKIE: ${{ secrets.COOKIE }}
+        SERVER_SCKEY: ${{ secrets.SERVER_SCKEY }}
+        GLADOS_COOKIE: ${{ secrets.GLADOS_COOKIE }}
