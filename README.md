@@ -14,7 +14,7 @@
 
 #### 脚本功能：
 
-1、通过Github Action自动定时运行[checkin.py](https://github.com/hbstarjason/glados-checkin/blob/master/checkin.py)脚本。
+1、通过Github Action自动定时运行[main.py](https://github.com/AAANSU/glados-checkin/edit/master/main.py)脚本。
 
 2、通过cookies自动登录（[https://glados.rocks/console/checkin](https://glados.rocks/console/checkin))，脚本会自动进行checkin。
 
@@ -43,7 +43,7 @@
    [*<u>如果是Edu邮箱，可免费升级为360天。 操作方法：教育邮箱注册后，点击官网最下方 Edu plan 去申请</u>*]
    
 #### 更新：
-###[2022.5.12] 
+###[2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)
 1. 修复出现 token error的问题 
-GLaDOS checkin 接口 request payload 中的 token 由 "glados_network" 更改为 "glados.network"
+GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
 
