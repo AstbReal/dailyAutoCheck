@@ -34,7 +34,7 @@ jobs:
        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi 
     - name: Checkin
       run: |
-        python3 checkin.py 
+        python3 main.py 
       env: 
         WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
         SERVE: ${{ secrets.SERVE }}
