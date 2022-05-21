@@ -10,7 +10,7 @@ sever = os.environ["SERVE"]
 sckey = os.environ["SERVER_SCKEY"]
 
 # 填入glados账号对应cookie
-cookie = os.environ["COOKIE"]
+cookie = os.environ["GLADOS_COOKIE"]
 
 # 企业微信的密钥
 wsecret = os.environ["WECHAT_SECRET"]
