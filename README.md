@@ -45,7 +45,7 @@
    
 #### 更新：  
 
-###[2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)  
+   - [2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)  
 
 1. 修复出现 token error的问题 
 GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
