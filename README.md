@@ -1,6 +1,7 @@
-### 最近签到可能只有30%几率签到领一天，建议教育邮箱搞起来
 # glados-checkin
 ![glados-checkin](https://github.com/hbstarjason/glados-checkin/workflows/glados-checkin/badge.svg)
+
+### **最近签到可能只有30%几率签到领一天，建议教育邮箱搞起来**
 
 #### 注册地址：
 
