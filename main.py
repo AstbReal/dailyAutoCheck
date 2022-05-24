@@ -19,7 +19,7 @@ wsecret = os.environ["WECHAT_SECRET"]
 wepid = os.environ["ENTERPRISE_ID"]
 
 # 应用ID
-appid = os.environ["APPID"]
+appid = os.environ["APP_ID"]
 
 def send_to_wecom(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
     get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
