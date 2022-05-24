@@ -117,7 +117,9 @@ def start():
         rat = use/total*100
         str_rat = '%.2f' % (rat)
         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
-        ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)  # 换成自己的企业微信id
+#         ret = send_to_wecom(wecomstr, wepid , appid , wsecret)  # 换成自己的企业微信 idsend_to_wecom_image
+#         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
+        ret = idsend_to_wecom_image(wecomstr, wepid , appid , wsecret)
         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
         print(str)
         if sever == 'on':
