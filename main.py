@@ -119,6 +119,7 @@ def start():
         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
         ret = send_to_wecom(str, wepid , appid , wsecret)  # 换成自己的企业微信id
         print(str, ret)
+        print(sever,sckey,cookie,wsecret, wepid, appid)
         if sever == 'on':
             requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' + mess + '余' + time +'天,用' + str_rat + '%&desp=' + str )
     else:
