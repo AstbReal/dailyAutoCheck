@@ -38,7 +38,7 @@
    - SERVER_SCKEY（填写server酱sckey，不开启server酱则不用填）
    - WECHAT_SECRET (企业微信的secret)
    - ENTERPRISE_ID (在我的企业中查看企业ID)
-   - APPID (自建通知APP的ID)
+   - APP_ID (自建通知APP的ID)
 
 5. 以上设置完毕后，每天零点会自动触发，并会执行自动main.py，如果开启server酱，会自动发通知到微信上。
 
