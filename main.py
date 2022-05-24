@@ -116,10 +116,10 @@ def start():
         use = today/1024/1024/1024
         rat = use/total*100
         str_rat = '%.2f' % (rat)
+        wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
+        ret = send_to_wecom(wecomstr, wepid , appid , wsecret)  # 换成自己的企业微信id
         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
-        ret = send_to_wecom(str, wepid , appid , wsecret)  # 换成自己的企业微信id
-        print(str, ret)
-        print(sever,sckey,cookie,wsecret, wepid, appid)
+        print(str)
         if sever == 'on':
             requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' + mess + '余' + time +'天,用' + str_rat + '%&desp=' + str )
     else:
