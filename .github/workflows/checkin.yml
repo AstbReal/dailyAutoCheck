@@ -40,3 +40,5 @@ jobs:
         SERVE: ${{ secrets.SERVE }}
         SERVER_SCKEY: ${{ secrets.SERVER_SCKEY }}
         GLADOS_COOKIE: ${{ secrets.GLADOS_COOKIE }}
+        ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID}}
+        APP_ID: ${{ secrets.APP_ID}}
