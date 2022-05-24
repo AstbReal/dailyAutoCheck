@@ -15,6 +15,11 @@ cookie = os.environ["GLADOS_COOKIE"]
 # 企业微信的密钥
 wsecret = os.environ["WECHAT_SECRET"]
 
+# 企业ID
+wepid = os.environ["ENTERPRISE_ID"]
+
+# 应用ID
+appid = os.environ["APPID"]
 
 def send_to_wecom(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
     get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
@@ -115,7 +120,7 @@ def start():
         rat = use/total*100
         str_rat = '%.2f' % (rat)
         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (mess, time, use, total, rat)
-        ret = send_to_wecom(str, "wwc216d22335b2bb48","1000002", wsecret)  # 换成自己的企业微信id
+        ret = send_to_wecom(str, wepid,appid, wsecret)  # 换成自己的企业微信id
         print(str, ret)
         if sever == 'on':
             requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' + mess + '余' + time +'天,用' + str_rat + '%&desp=' + str )
