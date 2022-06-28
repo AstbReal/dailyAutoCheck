@@ -106,6 +106,7 @@ def start():
                          'cookie': cookie, 'referer': referer, 'origin': origin, 'user-agent': useragent})
     traffic = requests.get(url3, headers={
                            'cookie': cookie, 'referer': referer, 'origin': origin, 'user-agent': useragent})
+    print(traffic.json())
     today = traffic.json()['data']['today']
     str = "cookie过期"
     if 'message' in checkin.text:
