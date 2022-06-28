@@ -1,4 +1,4 @@
-# glados-checkin
+# Glados-Checkin
 ![glados-checkin](https://github.com/hbstarjason/glados-checkin/workflows/glados-checkin/badge.svg)
 
 ### **最近签到可能只有30%几率签到领一天，建议教育邮箱搞起来**
@@ -50,8 +50,10 @@
 
    - [2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)  
 
-   1. 修复出现 token error的问题 
-   GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
-   2. 修复 traffic 出现Error报错的问题。
-   已经将`today = traffic.json()['data']['today']`更改为`today = state.json()['data']['traffic']`
+      - 修复出现 token error的问题   
+       GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
+
+   - [2022.6.28](https://github.com/AAANSU/glados-checkin/edit/master/README.md)   
+      - 修复 traffic 出现Error报错的问题。  
+       已经将`today = traffic.json()['data']['today']`更改为`today = state.json()['data']['traffic']`
 
