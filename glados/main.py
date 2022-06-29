@@ -133,7 +133,7 @@ def glados_checkin(driver):
 
     # today = state["data"]["traffic"]
     str = "cookie过期"
-    if 'message' in checkin.text:
+    if 'message' in checkin:
         mess = checkin['message']
         # time = state.json()['data']['leftDays']
         # time = time.split('.')[0]
