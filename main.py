@@ -1,13 +1,10 @@
-from lib import wecom as wecom
 from selenium.webdriver.support.ui import WebDriverWait
 import undetected_chromedriver as uc
 import json
 import os
 import subprocess
 import requests
-import sys
-
-sys.path.append("./")
+import base64
 
 # server酱开关，填off不开启(默认)，填on同时开启cookie失效通知和签到成功通知
 sever = os.environ["SERVE"]
@@ -29,13 +26,79 @@ appid = os.environ["APP_ID"]
 
 checkin_url = "https://glados.rocks/api/user/checkin"
 status_url = "https://glados.rocks/api/user/status"
-# traffic_url = "https://glados.rocks/api/user/traffic"
-referer = 'https://glados.rocks/console/checkin'
 origin = "https://glados.rocks"
-useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"
-payload = {
-    'token': 'glados.network'
-}
+
+
+def send_to_wecom(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
+    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
+    response = requests.get(get_token_url).content
+    access_token = json.loads(response).get('access_token')
+    if access_token and len(access_token) > 0:
+        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
+        data = {
+            "touser": wecom_touid,
+            "agentid": wecom_aid,
+            "msgtype": "text",
+            "text": {
+                "content": text
+            },
+            "duplicate_check_interval": 600
+        }
+        response = requests.post(send_msg_url, data=json.dumps(data)).content
+        return response
+    else:
+        return False
+
+
+def send_to_wecom_image(base64_content, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
+    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
+    response = requests.get(get_token_url).content
+    access_token = json.loads(response).get('access_token')
+    if access_token and len(access_token) > 0:
+        upload_url = f'https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={access_token}&type=image'
+        upload_response = requests.post(upload_url, files={
+            "picture": base64.b64decode(base64_content)
+        }).json()
+        if "media_id" in upload_response:
+            media_id = upload_response['media_id']
+        else:
+            return False
+
+        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
+        data = {
+            "touser": wecom_touid,
+            "agentid": wecom_aid,
+            "msgtype": "image",
+            "image": {
+                "media_id": media_id
+            },
+            "duplicate_check_interval": 600
+        }
+        response = requests.post(send_msg_url, data=json.dumps(data)).content
+        return response
+    else:
+        return False
+
+
+def send_to_wecom_markdown(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
+    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
+    response = requests.get(get_token_url).content
+    access_token = json.loads(response).get('access_token')
+    if access_token and len(access_token) > 0:
+        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
+        data = {
+            "touser": wecom_touid,
+            "agentid": wecom_aid,
+            "msgtype": "markdown",
+            "markdown": {
+                "content": text
+            },
+            "duplicate_check_interval": 600
+        }
+        response = requests.post(send_msg_url, data=json.dumps(data)).content
+        return response
+    else:
+        return False
 
 
 def get_driver_version():
