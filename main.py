@@ -4,7 +4,7 @@ import json
 import os
 import subprocess
 import requests
-import lib.wecom as wecom
+from lib import wecom as wecom
 
 # server酱开关，填off不开启(默认)，填on同时开启cookie失效通知和签到成功通知
 sever = os.environ["SERVE"]
