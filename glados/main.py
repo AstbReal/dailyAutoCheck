@@ -1,10 +1,16 @@
+# encoding=utf8
 from selenium.webdriver.support.ui import WebDriverWait
 import undetected_chromedriver as uc
-import json
-import os
-import subprocess
+import io
 import requests
 import base64
+import os
+import sys
+import time
+import json
+import subprocess
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 
 # server酱开关，填off不开启(默认)，填on同时开启cookie失效通知和签到成功通知
 sever = os.environ["SERVE"]
@@ -23,10 +29,6 @@ wepid = os.environ["ENTERPRISE_ID"]
 
 # 应用ID
 appid = os.environ["APP_ID"]
-
-checkin_url = "https://glados.rocks/api/user/checkin"
-status_url = "https://glados.rocks/api/user/status"
-origin = "https://glados.rocks"
 
 
 def send_to_wecom(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
@@ -113,45 +115,8 @@ def get_driver_version():
         return 0
 
 
-def glados():
-    options = uc.ChromeOptions()
-    options.add_argument("--disable-popup-blocking")
-
-    version = get_driver_version()
-    driver = uc.Chrome(version_main=version, options=options)
-
-    # Load target website
-    driver.get(origin)
-
-    cookie_dict = [
-        {"name": x.split('=')[0].strip(), "value": x[x.find('=')+1:]}
-        for x in cookie.split(";")
-    ]
-    # Clean the old session cookies
-    driver.delete_all_cookies()
-
-    for value in cookie_dict:
-        if value["name"] in ["koa:sess", "koa:sess.sig", "__stripe_mid", "__cf_bm"]:
-            driver.add_cookie({
-                "domain": "glados.rocks",
-                "name": value["name"],
-                "value": value["value"],
-                "path": "/",
-            })
-
-    driver.get(origin)
-
-    WebDriverWait(driver, 240).until(
-        lambda x: x.title != "Just a moment..."
-    )
-
-    glados_checkin(driver)
-
-    driver.close()
-    driver.quit()
-
-
 def glados_checkin(driver):
+    checkin_url = "https://glados.rocks/api/user/checkin"
     checkin_query = """
         (function (){
         var request = new XMLHttpRequest();
@@ -163,49 +128,75 @@ def glados_checkin(driver):
         })();
         """ % (checkin_url)
     checkin_query = checkin_query.replace("\n", "")
-
-    resp_checkin = driver.execute_script("return" + checkin_query)
+    resp_checkin = driver.execute_script("return " + checkin_query)
     checkin = json.loads(resp_checkin["response"])
 
-    state_query = """
-        (function (){
-        var request = new XMLHttpRequest();
-        request.open("GET","%s",false);
-        request.withCredentials=true;
-        return request;
-        })();
-        """ % (status_url)
-    state_query = state_query.replace("\n", "")
+#     today = state["data"]["traffic"]
+#     str = "cookie过期"
+#     if 'message' in checkin.text:
+#         mess = checkin.json()['message']
+#         time = state.json()['data']['leftDays']
+#         time = time.split('.')[0]
+#         total = 200
+#         use = today/1024/1024/1024
+#         rat = use/total*100
+#         str_rat = '%.2f' % (rat)
+#         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
+#             mess, time, use, total, rat)
+#         # 换成自己的企业微信 idsend_to_wecom_image
+#         ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
+# #         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
+#         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
+#             mess, time, use, total, rat)
+# #         ret = send_to_wecom_image(str, wepid , appid , wsecret)
+#         print(str)
+#         if sever == 'on':
+#             requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
+#                          mess + '余' + time + '天,用' + str_rat + '%&desp=' + str)
+#     else:
+#         requests.get('https://sctapi.ftqq.com/' + sckey +
+#                      '.send?title=Glados_edu_cookie过期')
 
-    resp_state = driver.execute_script("return" + state_query)
-    state = json.loads(resp_state["response"])
+    del checkin["list"]
+    print("Time:", time.asctime(time.localtime()), checkin)
+    assert checkin["code"] in [0, 1]
 
-    today = state["data"]["traffic"]
-    str = "cookie过期"
-    if 'message' in checkin.text:
-        mess = checkin.json()['message']
-        time = state.json()['data']['leftDays']
-        time = time.split('.')[0]
-        total = 200
-        use = today/1024/1024/1024
-        rat = use/total*100
-        str_rat = '%.2f' % (rat)
-        wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
-            mess, time, use, total, rat)
-        # 换成自己的企业微信 idsend_to_wecom_image
-        ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
-#         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
-        str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
-            mess, time, use, total, rat)
-#         ret = send_to_wecom_image(str, wepid , appid , wsecret)
-        print(str)
-        if sever == 'on':
-            requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
-                         mess + '余' + time + '天,用' + str_rat + '%&desp=' + str)
-    else:
-        requests.get('https://sctapi.ftqq.com/' + sckey +
-                     '.send?title=Glados_edu_cookie过期')
+
+def glados(cookie_string):
+    options = uc.ChromeOptions()
+    options.add_argument("--disable-popup-blocking")
+
+    version = get_driver_version()
+    driver = uc.Chrome(version_main=version, options=options)
+
+    # Load cookie
+    driver.get("https://glados.rocks")
+
+    cookie_dict = [
+        {"name": x.split('=')[0].strip(), "value": x[x.find('=')+1:]}
+        for x in cookie_string.split(';')
+    ]
+
+    driver.delete_all_cookies()
+    for cookie in cookie_dict:
+        if cookie["name"] in ["koa:sess", "koa:sess.sig", "__stripe_mid", "__cf_bm"]:
+            driver.add_cookie({
+                "domain": "glados.rocks",
+                "name": cookie["name"],
+                "value": cookie["value"],
+                "path": "/",
+            })
+
+    driver.get("https://glados.rocks")
+
+    WebDriverWait(driver, 240).until(
+        lambda x: x.title != "Just a moment..."
+    )
+    glados_checkin(driver)
+
+    driver.close()
+    driver.quit()
 
 
 if __name__ == "__main__":
-    glados()
+    glados(cookie)
