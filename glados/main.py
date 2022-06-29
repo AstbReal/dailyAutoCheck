@@ -6,7 +6,7 @@ import requests
 import base64
 import os
 import sys
-import time
+# import time
 import json
 import subprocess
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -131,31 +131,37 @@ def glados_checkin(driver):
     resp_checkin = driver.execute_script("return " + checkin_query)
     checkin = json.loads(resp_checkin["response"])
 
-#     today = state["data"]["traffic"]
-#     str = "cookie过期"
-#     if 'message' in checkin.text:
-#         mess = checkin.json()['message']
-#         time = state.json()['data']['leftDays']
-#         time = time.split('.')[0]
-#         total = 200
-#         use = today/1024/1024/1024
-#         rat = use/total*100
-#         str_rat = '%.2f' % (rat)
-#         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
-#             mess, time, use, total, rat)
-#         # 换成自己的企业微信 idsend_to_wecom_image
-#         ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
-# #         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
-#         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
-#             mess, time, use, total, rat)
-# #         ret = send_to_wecom_image(str, wepid , appid , wsecret)
-#         print(str)
-#         if sever == 'on':
-#             requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
-#                          mess + '余' + time + '天,用' + str_rat + '%&desp=' + str)
-#     else:
-#         requests.get('https://sctapi.ftqq.com/' + sckey +
-#                      '.send?title=Glados_edu_cookie过期')
+    # today = state["data"]["traffic"]
+    str = "cookie过期"
+    if 'message' in checkin.text:
+        mess = checkin.json()['message']
+        # time = state.json()['data']['leftDays']
+        # time = time.split('.')[0]
+        time = checkin["list"][0]["balance"]
+        time = time.split('.')[0]
+        # total = 200
+        # use = today/1024/1024/1024
+        # rat = use/total*100
+        # str_rat = '%.2f' % (rat)
+        # wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
+        #     mess, time, use, total, rat)
+        wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
+            mess, time)
+        # 换成自己的企业微信 idsend_to_wecom_image
+        ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
+#         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
+        # str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
+        #     mess, time, use, total, rat)
+#         ret = send_to_wecom_image(str, wepid , appid , wsecret)
+        print(wecomstr)
+        if sever == 'on':
+            # requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
+            #              mess + '余' + time + '天,用' + str_rat + '%&desp=' + str)
+            requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
+                         mess + '余' + time + '天,' + '%&desp=' + str)
+    else:
+        requests.get('https://sctapi.ftqq.com/' + sckey +
+                     '.send?title=Glados_edu_cookie过期')
 
     del checkin["list"]
     print("Time:", time.asctime(time.localtime()), checkin)
