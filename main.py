@@ -193,7 +193,7 @@ def glados_checkin(driver):
         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
             mess, time, use, total, rat)
         # 换成自己的企业微信 idsend_to_wecom_image
-        ret = wecom.send_to_wecom(wecomstr, wepid, appid, wsecret)
+        ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
 #         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
         str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
             mess, time, use, total, rat)
