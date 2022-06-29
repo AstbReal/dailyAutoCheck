@@ -134,7 +134,7 @@ def glados_checkin(driver):
     # today = state["data"]["traffic"]
     str = "cookie过期"
     if 'message' in checkin.text:
-        mess = checkin.json()['message']
+        mess = checkin['message']
         # time = state.json()['data']['leftDays']
         # time = time.split('.')[0]
         time = checkin["list"][0]["balance"]
@@ -163,9 +163,9 @@ def glados_checkin(driver):
         requests.get('https://sctapi.ftqq.com/' + sckey +
                      '.send?title=Glados_edu_cookie过期')
 
-    del checkin["list"]
-    print("Time:", time.asctime(time.localtime()), checkin)
-    assert checkin["code"] in [0, 1]
+    # del checkin["list"]
+    # print("Time:", time.asctime(time.localtime()), checkin)
+    # assert checkin["code"] in [0, 1]
 
 
 def glados(cookie_string):
