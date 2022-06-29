@@ -145,7 +145,7 @@ def glados_checkin(driver):
         # str_rat = '%.2f' % (rat)
         # wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
         #     mess, time, use, total, rat)
-        wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
+        wecomstr = '提示:%s; 目前剩余%s天;' % (
             mess, time)
         # 换成自己的企业微信 idsend_to_wecom_image
         ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
