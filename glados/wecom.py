@@ -87,7 +87,7 @@ def send_to_sever(sckey, mess, time, message, ok):
 def limit_capacity(vip):
     level = dict([(1, 10), (11, 50), (21, 200),
                  (31, 500), (41, 2000)])
-    return level(vip)
+    return level[vip]
 
 
 # ok=true 则使用message通知具体内容; ok=false,则显示cookie登录失败
