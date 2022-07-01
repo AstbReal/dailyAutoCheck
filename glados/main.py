@@ -121,12 +121,12 @@ def glados(cookie_string):
         driver.quit()
         return checkin_code
     else:
-        if checkin_message != "Please Try Tomorrow":
-            status_message = get_Status(driver)
-            messages = [checkin_message, status_message]
-            message_notice(messages, True, wepid, appid, wsecret, sever, sckey)
-            success = "Checkin success!"
-            print(success)
+        # if checkin_message != "Please Try Tomorrow":
+        status_message = get_Status(driver)
+        messages = [checkin_message, status_message]
+        message_notice(messages, True, wepid, appid, wsecret, sever, sckey)
+        success = "Checkin success!"
+        print(success)
 
     driver.close()
     driver.quit()
@@ -139,11 +139,13 @@ def glados(cookie_string):
 if __name__ == "__main__":
     # 支持多cookie签到,中间&&分隔开
     list_cookie = cookie.split("&&")
+    print("开始签到")
     for index, cookie in enumerate(list_cookie):
-        print(f"[第{index+1}个账号：")
         resp_code = glados(cookie)
         if resp_code == -2:
             error = f"第{index+1}个账号cookie出现错误!请检查。"
             message_notice(error, False, wepid, appid, wsecret, sever, sckey)
             print(error)
+            continue
+        print(f"[第{index+1}个账号：签到成功!")
         # list_codes.append(resp_code)
