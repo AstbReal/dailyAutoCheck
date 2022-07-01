@@ -85,8 +85,8 @@ def send_to_sever(sckey, mess, time, message, ok):
 
 
 def limit_capacity(vip):
-    level = dict([("01", 10), ("11", 50), ("21", 200),
-                 ("31", 500), ("41", 2000)])
+    level = dict([(1, 10), (11, 50), (21, 200),
+                 (31, 500), (41, 2000)])
     return level(vip)
 
 
