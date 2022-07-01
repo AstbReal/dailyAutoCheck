@@ -147,5 +147,5 @@ if __name__ == "__main__":
             message_notice(error, False, wepid, appid, wsecret, sever, sckey)
             print(error)
             continue
-        print(f"[第{index+1}个账号：签到成功!")
+        print(f"[第{index+1}个账号：签到成功!]")
         # list_codes.append(resp_code)
