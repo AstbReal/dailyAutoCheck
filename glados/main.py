@@ -121,12 +121,12 @@ def glados(cookie_string):
         driver.quit()
         return checkin_code
     else:
-        # if checkin_message != "Please Try Tomorrow":
-        status_message = get_Status(driver)
-        messages = [checkin_message, status_message]
-        message_notice(messages, True, wepid, appid, wsecret, sever, sckey)
-        success = "Checkin success!"
-        print(success)
+        if checkin_message != "Please Try Tomorrow":
+            status_message = get_Status(driver)
+            messages = [checkin_message, status_message]
+            message_notice(messages, True, wepid, appid, wsecret, sever, sckey)
+            success = "Checkin success!"
+            print(success)
 
     driver.close()
     driver.quit()
