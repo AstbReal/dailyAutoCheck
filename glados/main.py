@@ -123,8 +123,8 @@ def glados(cookie_string):
     else:
         if checkin_message != "Please Try Tomorrow":
             status_message = get_Status(driver)
-            messages = [checkin_message,status_message]
-            message_notice(messages,True,wepid,appid,wsecret,sever,sckey)
+            messages = [checkin_message, status_message]
+            message_notice(messages, True, wepid, appid, wsecret, sever, sckey)
             success = "Checkin success!"
             print(success)
 
@@ -134,18 +134,16 @@ def glados(cookie_string):
     return checkin_code
 
 
-
 #  代码学习来自作者：[tyIceStream]https://github.com/tyIceStream/GLaDOS_Checkin.git
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
     # 支持多cookie签到,中间&&分隔开
     list_cookie = cookie.split("&&")
-    list_codes = list(str)
     for index, cookie in enumerate(list_cookie):
         print(f"[第{index+1}个账号：")
         resp_code = glados(cookie)
         if resp_code == -2:
             error = f"第{index+1}个账号cookie出现错误!请检查。"
-            message_notice(error,False,wepid,appid,wsecret,sever,sckey)
+            message_notice(error, False, wepid, appid, wsecret, sever, sckey)
             print(error)
         # list_codes.append(resp_code)
