@@ -9,6 +9,8 @@ import sys
 # import time
 import json
 import subprocess
+from wecom import *
+# import glados.wecom as wecom
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
@@ -31,78 +33,6 @@ wepid = os.environ["ENTERPRISE_ID"]
 appid = os.environ["APP_ID"]
 
 
-def send_to_wecom(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
-    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
-    response = requests.get(get_token_url).content
-    access_token = json.loads(response).get('access_token')
-    if access_token and len(access_token) > 0:
-        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
-        data = {
-            "touser": wecom_touid,
-            "agentid": wecom_aid,
-            "msgtype": "text",
-            "text": {
-                "content": text
-            },
-            "duplicate_check_interval": 600
-        }
-        response = requests.post(send_msg_url, data=json.dumps(data)).content
-        return response
-    else:
-        return False
-
-
-def send_to_wecom_image(base64_content, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
-    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
-    response = requests.get(get_token_url).content
-    access_token = json.loads(response).get('access_token')
-    if access_token and len(access_token) > 0:
-        upload_url = f'https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={access_token}&type=image'
-        upload_response = requests.post(upload_url, files={
-            "picture": base64.b64decode(base64_content)
-        }).json()
-        if "media_id" in upload_response:
-            media_id = upload_response['media_id']
-        else:
-            return False
-
-        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
-        data = {
-            "touser": wecom_touid,
-            "agentid": wecom_aid,
-            "msgtype": "image",
-            "image": {
-                "media_id": media_id
-            },
-            "duplicate_check_interval": 600
-        }
-        response = requests.post(send_msg_url, data=json.dumps(data)).content
-        return response
-    else:
-        return False
-
-
-def send_to_wecom_markdown(text, wecom_cid, wecom_aid, wecom_secret, wecom_touid='@all'):
-    get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wecom_cid}&corpsecret={wecom_secret}"
-    response = requests.get(get_token_url).content
-    access_token = json.loads(response).get('access_token')
-    if access_token and len(access_token) > 0:
-        send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
-        data = {
-            "touser": wecom_touid,
-            "agentid": wecom_aid,
-            "msgtype": "markdown",
-            "markdown": {
-                "content": text
-            },
-            "duplicate_check_interval": 600
-        }
-        response = requests.post(send_msg_url, data=json.dumps(data)).content
-        return response
-    else:
-        return False
-
-
 def get_driver_version():
     cmd = r'''powershell -command "&{(Get-Item 'C:\Program Files\Google\Chrome\Application\chrome.exe').VersionInfo.ProductVersion}"'''
     try:
@@ -115,7 +45,7 @@ def get_driver_version():
         return 0
 
 
-def glados_checkin(driver):
+def get_checkin(driver):
     checkin_url = "https://glados.rocks/api/user/checkin"
     checkin_query = """
         (function (){
@@ -130,42 +60,27 @@ def glados_checkin(driver):
     checkin_query = checkin_query.replace("\n", "")
     resp_checkin = driver.execute_script("return " + checkin_query)
     checkin = json.loads(resp_checkin["response"])
+    return checkin["code"], checkin["message"]
 
-    # today = state["data"]["traffic"]
-    str = "cookie过期"
-    if 'message' in checkin:
-        mess = checkin['message']
-        # time = state.json()['data']['leftDays']
-        # time = time.split('.')[0]
-        time = checkin["list"][0]["balance"]
-        time = time.split('.')[0]
-        # total = 200
-        # use = today/1024/1024/1024
-        # rat = use/total*100
-        # str_rat = '%.2f' % (rat)
-        # wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
-        #     mess, time, use, total, rat)
-        wecomstr = '提示:%s; 目前剩余%s天;' % (
-            mess, time)
-        # 换成自己的企业微信 idsend_to_wecom_image
-        ret = send_to_wecom(wecomstr, wepid, appid, wsecret)
-#         ret = send_to_wecom_markdown(wecomstr, wepid , appid , wsecret)
-        # str = '%s , you have %s days left. use: %.3f/%dGB(%.2f%%)' % (
-        #     mess, time, use, total, rat)
-#         ret = send_to_wecom_image(str, wepid , appid , wsecret)
-        print(wecomstr)
-        if sever == 'on':
-            # requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
-            #              mess + '余' + time + '天,用' + str_rat + '%&desp=' + str)
-            requests.get('https://sctapi.ftqq.com/' + sckey + '.send?title=' +
-                         mess + '余' + time + '天,' + '%&desp=' + str)
-    else:
-        requests.get('https://sctapi.ftqq.com/' + sckey +
-                     '.send?title=Glados_edu_cookie过期')
 
-    # del checkin["list"]
-    # print("Time:", time.asctime(time.localtime()), checkin)
-    # assert checkin["code"] in [0, 1]
+def get_Status(driver):
+    status_url = "https://glados.rocks/api/user/status"
+    status_query = """
+        (function (){
+        var request = new XMLHttpRequest();
+        request.open("GET","%s",false);
+        request.send(null);
+        return request;
+        })();
+        """ % (status_url)
+    status_query = status_query.replace("\n", "")
+    resp = driver.execute_script("return " + status_query)
+    status = json.loads(resp["response"])
+    return status["data"]
+
+
+# def check_respcode(code):
+#     if code == -2:
 
 
 def glados(cookie_string):
@@ -194,15 +109,43 @@ def glados(cookie_string):
             })
 
     driver.get("https://glados.rocks")
-
     WebDriverWait(driver, 240).until(
         lambda x: x.title != "Just a moment..."
     )
-    glados_checkin(driver)
+
+    checkin_code, checkin_message = get_checkin(driver)
+    if checkin_code == -2:
+        error = "Login Failed, cooike is invalid!"
+        print(error)
+        driver.close()
+        driver.quit()
+        return checkin_code
+    else:
+        if checkin_message != "Please Try Tomorrow":
+            status_message = get_Status(driver)
+            messages = [checkin_message,status_message]
+            message_notice(messages,True,wepid,appid,wsecret,sever,sckey)
+            success = "Checkin success!"
+            print(success)
 
     driver.close()
     driver.quit()
 
+    return checkin_code
 
+
+
+#  代码学习来自作者：[tyIceStream]https://github.com/tyIceStream/GLaDOS_Checkin.git
+#  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
-    glados(cookie)
+    # 支持多cookie签到,中间&&分隔开
+    list_cookie = cookie.split("&&")
+    list_codes = list(str)
+    for index, cookie in enumerate(list_cookie):
+        print(f"[第{index+1}个账号：")
+        resp_code = glados(cookie)
+        if resp_code == -2:
+            error = f"第{index+1}个账号cookie出现错误!请检查。"
+            message_notice(error,False,wepid,appid,wsecret,sever,sckey)
+            print(error)
+        # list_codes.append(resp_code)
