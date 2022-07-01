@@ -105,8 +105,8 @@ def message_notice(message, ok, wepid, appid, wsecret, sever, sckey):
 
         use_rat = use/capacity*100  # ?
         str_rat = '%.2f%%' % (use_rat)  # str
-        print(type(mess), type(time), type(use), type(
-            capacity), type(str_rat), type(use_rat))
+        # print(type(mess), type(time), type(use), type(
+        # capacity), type(str_rat), type(use_rat))
         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%s)' % (
             mess, time, use, capacity, str_rat)
         # 换成自己的企业微信 idsend_to_wecom_image
