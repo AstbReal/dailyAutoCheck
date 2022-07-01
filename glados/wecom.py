@@ -100,12 +100,13 @@ def message_notice(message, ok, wepid, appid, wsecret, sever, sckey):
         mess = checkin
         time = status['leftDays']
         time = time.split('.')[0]
-        use = status['traffic']/1024/1024/1024
-        capacity = limit_capacity(status['vip'])
+        use = status['traffic']/1024/1024/1024  # float
+        capacity = limit_capacity(status['vip'])  # int
 
-        use_rat = use/capacity*100
-        str_rat = '%.2f' % (use_rat)
-        print(type(mess), type(time), type(use), type(capacity), type(str_rat))
+        use_rat = use/capacity*100  # ?
+        str_rat = '%.2f' % (use_rat)  # str
+        print(type(mess), type(time), type(use), type(
+            capacity), type(str_rat), type(use_rat))
         wecomstr = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%.2f%%)' % (
             mess, time, use, capacity, str_rat)
         # 换成自己的企业微信 idsend_to_wecom_image
