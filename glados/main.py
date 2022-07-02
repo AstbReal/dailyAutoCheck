@@ -1,7 +1,5 @@
 # encoding=utf8
-import io
 import os
-import sys
 from wecom import *
 from checkin import *
 
