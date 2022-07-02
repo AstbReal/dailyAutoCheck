@@ -141,6 +141,7 @@ if __name__ == "__main__":
     list_cookie = cookie.split("&&")
     print("开始签到")
     for index, cookie in enumerate(list_cookie):
+        print("开始签到...")
         resp_code = glados(cookie)
         if resp_code == -2:
             error = f"第{index+1}个账号cookie出现错误!请检查。"
