@@ -1,4 +1,4 @@
-name: glados-win
+name: glados-master
 
 on:
   workflow_dispatch:
@@ -8,8 +8,8 @@ on:
   #pull_request:
   #  branches: [ main ]
 
-  # schedule:
-  #   - cron: 0 23 * * *
+  schedule:
+    - cron: 0 23 * * *
 
 jobs:
   build:
