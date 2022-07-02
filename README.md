@@ -15,11 +15,11 @@
 
 #### 脚本功能：
 
-1、通过Github Action自动定时运行[main.py](https://github.com/AAANSU/glados-checkin/edit/master/main.py)脚本。
+1、通过Github Action自动定时运行[main.py](https://github.com/AstbReal/glados-checkin/blob/master/glados/main.py)脚本。
 
 2、通过cookies自动登录（[https://glados.rocks/console/checkin](https://glados.rocks/console/checkin))，脚本会自动进行checkin。
 
-3、然后通过“Server酱”（[https://sct.ftqq.com/](https://sct.ftqq.com/))，自动发通知到微信上。
+3、然后通过“Server酱”（[https://sct.ftqq.com/](https://sct.ftqq.com/))或者“企业微信”，自动发通知到微信上。
 
 
 
@@ -48,12 +48,11 @@
    
 #### 更新：  
 
-   - [2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)  
+   - [2022.5.12](https://github.com/AstbReal/glados-checkin/blob/master/README.md)  
 
       - 修复出现 token error的问题   
        GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
 
-   - [2022.6.28](https://github.com/AAANSU/glados-checkin/edit/master/README.md)   
-      - 修复 traffic 出现Error报错的问题。  
-       已经将`today = traffic.json()['data']['today']`更改为`today = state.json()['data']['traffic']`
+   - [2022.7.2](https://github.com/AstbReal/glados-checkin/blob/master/README.md)   
+      - 修复 触发反爬虫机制的问题([Author:](https://github.com/tyIceStream/GLaDOS_Checkin))
 
