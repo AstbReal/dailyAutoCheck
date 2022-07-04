@@ -109,32 +109,28 @@ def limit_capacity(vip):
 
 # ok=true 则使用message通知具体内容; ok=false,则显示cookie登录失败
 def message_notice(message, ok):
+    if ok:
+        # message = [checkin_message,status_message]
+        checkin = message[0]
+        status = message[1]
 
-    def notice():
-        if ok:
-            # message = [checkin_message,status_message]
-            checkin = message[0]
-            status = message[1]
+        mess = checkin
+        time = status['leftDays']
+        time = time.split('.')[0]
+        use = status['traffic']/1024/1024/1024
+        capacity = limit_capacity(status['vip'])
 
-            mess = checkin
-            time = status['leftDays']
-            time = time.split('.')[0]
-            use = status['traffic']/1024/1024/1024
-            capacity = limit_capacity(status['vip'])
+        use_rat = use/capacity*100
+        str_rat = '%.2f%%' % (use_rat)
 
-            use_rat = use/capacity*100
-            str_rat = '%.2f%%' % (use_rat)
-
-            msg_str = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%s)' % (
-                mess, time, use, capacity, str_rat)
-            send_to_wecom(msg_str)  # 换成自己的企业微信 idsend_to_wecom_image
-            print(msg_str)
-            if sever == 'on':
-                send_to_sever(ok=True, message=msg_str, mess=mess, time=time)
-        else:
-            # message = f"第{index+1}个账号cookie出现错误!请检查。"
-            send_to_wecom(message)
-            if sever == 'on':
-                send_to_sever(ok=False, message=message)
-
-    notice()  # 闭包函数
+        msg_str = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%s)' % (
+            mess, time, use, capacity, str_rat)
+        send_to_wecom(msg_str)
+        print(msg_str)
+        if sever == 'on':
+            send_to_sever(ok=ok, message=msg_str, mess=mess, time=time)
+    else:
+        # message = f"第{index+1}个账号cookie出现错误!请检查。"
+        send_to_wecom(message)
+        if sever == 'on':
+            send_to_sever(ok=ok, message=message)
