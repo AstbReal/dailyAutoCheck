@@ -1,5 +1,8 @@
 # encoding=utf8
 import os
+import time
+
+from numpy import size
 from wecom import *
 from checkin import *
 
@@ -19,11 +22,11 @@ if __name__ == "__main__":
         if resp_code == -2:
             info = f"第{index+1}个账号cookie出现错误!请检查。"
             message_notice(info, False)  # 发送失败消息给推送。
-        elif resp_code == -100:  # 自定义code
-            info = f"第{index+1}个账号已经签到过了，请明天再尝试..."
-            message_notice(info, False)
         else:
             info = f"[第{index+1}个账号：签到成功!]"
             message.append(info)
             message_notice(message, True)  # 发送成功消息给推送，并打印到终端。
         print(info)
+
+        # if index!=len(list_cookie):
+        #     time.sleep(30)
