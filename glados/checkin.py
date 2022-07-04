@@ -4,7 +4,6 @@ import subprocess
 import sys
 import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
-from wecom import *
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
