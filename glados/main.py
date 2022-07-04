@@ -24,5 +24,6 @@ if __name__ == "__main__":
             message_notice(info, False)
         else:
             info = f"[第{index+1}个账号：签到成功!]"
+            message.append(info)
             message_notice(message, True)  # 发送成功消息给推送，并打印到终端。
         print(info)

@@ -113,6 +113,7 @@ def message_notice(message, ok):
         # message = [checkin_message,status_message]
         checkin = message[0]
         status = message[1]
+        account = message[2]
 
         mess = checkin
         time = status['leftDays']
@@ -125,6 +126,8 @@ def message_notice(message, ok):
 
         msg_str = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%s)' % (
             mess, time, use, capacity, str_rat)
+        msg_str = account + msg_str
+
         send_to_wecom(msg_str)
         print(msg_str)
         if sever == 'on':
