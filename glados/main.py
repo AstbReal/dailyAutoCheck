@@ -1,8 +1,6 @@
 # encoding=utf8
 import os
-import time
 
-from numpy import size
 from wecom import *
 from checkin import *
 
