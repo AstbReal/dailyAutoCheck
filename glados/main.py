@@ -1,8 +1,6 @@
 # encoding=utf8
 import os
 
-from sqlalchemy import true
-
 from wecom import *
 from checkin import *
 
