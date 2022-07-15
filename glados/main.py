@@ -17,12 +17,12 @@ if __name__ == "__main__":
         print(f"第{index+1}个账号正在签到...")
         resp_code, message = glados(cookie)
         if resp_code == -2:
-            info = f"第{index+1}个账号cookie出现错误!请检查。"
-            message_notice(info, False)  # 发送成功消息给推动，并打印到终端。
+            mess = f"第{index+1}个账号cookie出现错误!请检查。"
+            message_notice(mess, False)  # 发送成功消息给推动，并打印到终端。
         elif resp_code ==-100 : # 自定义code
-            info = f"第{index+1}个账号已经签到过了，请明天再尝试..."
-            message_notice(info, False)
+            mess = f"第{index+1}个账号已经签到过了，请明天再尝试..."
+            message_notice(mess, False)
         else:
-            info = f"[第{index+1}个账号：签到成功!]"
+            mess = f"[第{index+1}个账号：签到成功!]"
             message_notice(message, True)  # 发送失败消息给推送。
-    print(info)
+    print(mess)
