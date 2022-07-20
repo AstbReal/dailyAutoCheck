@@ -31,9 +31,10 @@
 
 3. 登录GLaDOS后获取cookies。（简单获取方法：浏览器快捷键F12，打开调试窗口，点击“network”获取）
 
-4. 在自己的仓库“Settings”里创建6个“Secrets”，分别是：（不开启通知，只需要创建一个COOKIE即可）
+4. 在自己的仓库“Settings”里创建6个“Secrets”，分别是：（不开启通知，只需要创建COOKIE即可）
 
-   - GLADOS_COOKIE（**必填**）
+   - GLADOS_COOKIE（**必填**） 
+     - 该代码可以支持多用户同时签到，输入多用户时，用户的cookie之间用`&&`进行分割
    - SERVE（server酱开关，默认是off，填on的话，会同时开启cookie失效通知和签到成功通知）
    - SERVER_SCKEY（填写server酱sckey，不开启server酱则不用填）
    - WECHAT_SECRET (企业微信的secret)
