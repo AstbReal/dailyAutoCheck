@@ -104,7 +104,10 @@ def send_to_sever(mess, time, message, ok):
 def limit_capacity(vip):
     level = dict([(1, 10), (11, 50), (21, 200),
                  (31, 500), (41, 2000)])
-    return level[vip]
+    if vip in [1, 11, 21, 31, 41]:
+        return level[vip]
+    else:
+        return level[21]  # 默认200G流量上限
 
 
 # ok=true 则使用message通知具体内容; ok=false,则显示cookie登录失败
