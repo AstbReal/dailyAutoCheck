@@ -1,8 +1,8 @@
 # encoding=utf8
 import os
 
-from wecom import *
 from checkin import *
+from notice import *
 
 # 若需要通知功能，请看wecom.py代码，此处只有cookie
 # 填入glados账号对应cookie
