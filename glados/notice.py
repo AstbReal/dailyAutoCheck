@@ -127,7 +127,7 @@ def message_notice(message, ok):
         use_rat = use/capacity*100
         str_rat = '%.2f%%' % (use_rat)
 
-        msg_str = '提示:%s; 目前剩余%s天; 流量已使用:%.3f/%dGB(%s)' % (
+        msg_str = '\n\t- 提示:%s;\n\t- 目前剩余%s天;\n\t- 流量已使用:%.3f/%dGB(%s)' % (
             mess, time, use, capacity, str_rat)
         msg_str = account + msg_str
 
