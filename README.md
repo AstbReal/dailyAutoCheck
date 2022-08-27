@@ -15,11 +15,11 @@
 
 #### 脚本功能：
 
-1、通过Github Action自动定时运行[main.py](https://github.com/AAANSU/glados-checkin/edit/master/main.py)脚本。
+1、通过Github Action自动定时运行[main.py](https://github.com/AstbReal/glados-checkin/blob/master/glados/main.py)脚本。
 
 2、通过cookies自动登录（[https://glados.rocks/console/checkin](https://glados.rocks/console/checkin))，脚本会自动进行checkin。
 
-3、然后通过“Server酱”（[https://sct.ftqq.com/](https://sct.ftqq.com/))，自动发通知到微信上。
+3、然后通过“Server酱”（[https://sct.ftqq.com/](https://sct.ftqq.com/))或者“企业微信”，自动发通知到微信上。
 
 
 
@@ -31,9 +31,10 @@
 
 3. 登录GLaDOS后获取cookies。（简单获取方法：浏览器快捷键F12，打开调试窗口，点击“network”获取）
 
-4. 在自己的仓库“Settings”里创建6个“Secrets”，分别是：（不开启通知，只需要创建一个COOKIE即可）
+4. 在自己的仓库“Settings”里创建6个“Secrets”，分别是：（不开启通知，只需要创建COOKIE即可）
 
-   - GLADOS_COOKIE（**必填**）
+   - GLADOS_COOKIE（**必填**） 
+     - 该代码可以支持多用户同时签到，输入多用户时，用户的cookie之间用`&&`进行分割
    - SERVE（server酱开关，默认是off，填on的话，会同时开启cookie失效通知和签到成功通知）
    - SERVER_SCKEY（填写server酱sckey，不开启server酱则不用填）
    - WECHAT_SECRET (企业微信的secret)
@@ -48,12 +49,11 @@
    
 #### 更新：  
 
-   - [2022.5.12](https://github.com/AAANSU/glados-checkin/edit/master/README.md)  
+   - [2022.5.12](https://github.com/AstbReal/glados-checkin/blob/master/README.md)  
 
       - 修复出现 token error的问题   
        GLaDOS checkin 接口 request payload 中的 token 由 `"glados_network"` 更改为 `"glados.network"`
 
-   - [2022.6.28](https://github.com/AAANSU/glados-checkin/edit/master/README.md)   
-      - 修复 traffic 出现Error报错的问题。  
-       已经将`today = traffic.json()['data']['today']`更改为`today = state.json()['data']['traffic']`
+   - [2022.7.2](https://github.com/AstbReal/glados-checkin/blob/master/README.md)   
+      - 修复 触发反爬虫机制的问题([Author:](https://github.com/tyIceStream/GLaDOS_Checkin))
 

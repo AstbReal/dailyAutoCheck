@@ -4,7 +4,6 @@ import subprocess
 import sys
 import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
-from wecom import *
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -86,13 +85,11 @@ def glados(cookie_string):
     )
 
     checkin_code, checkin_message = get_checkin(driver)
-    messages = ""  # code==-2和-100 是默认为空
+    messages = ""  # code==-2是默认为空
     if checkin_code != -2:
-        if checkin_message != "Please Try Tomorrow":
-            status_message = get_Status(driver)
-            messages = [checkin_message, status_message]
-        else:
-            checkin_code = -100  # 意味着已经签到过了
+        status_message = get_Status(driver)
+        messages = [checkin_message, status_message]
+
 
     driver.close()
     driver.quit()
