@@ -27,6 +27,7 @@ jobs:
         env:
           WECHAT_SECRET: ${{ secrets.WECHAT_SECRET }}
           SERVE: ${{ secrets.SERVE }}
+          CLOSE_USER: ${{ secrets.CLOSE_USER }}
           SERVER_SCKEY: ${{ secrets.SERVER_SCKEY }}
           GLADOS_COOKIE: ${{ secrets.GLADOS_COOKIE }}
           ENTERPRISE_ID: ${{ secrets.ENTERPRISE_ID}}
