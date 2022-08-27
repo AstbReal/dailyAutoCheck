@@ -32,8 +32,10 @@ if __name__ == "__main__":
         for close in list_close:
             if user["id"] == close["id"]:
                 if close['check'] == False:
-                    print(f"已成功跳过用户{user['name']}的打卡步骤")
                     passThisUser = True
+                    msg = f"已成功跳过用户{user['name']}的打卡步骤"
+                    print(msg)
+                    message_notice(msg, success)
                     break
         if passThisUser:
             continue
@@ -44,7 +46,7 @@ if __name__ == "__main__":
             info = f"用户{user['name']}cookie出现错误!请检查。"
             message_notice(info, fail)  # 发送失败消息给推送。
         else:
-            info = f"[用户{user['name']}账号签到成功!]"
+            info = f"[用户{user['name']}签到成功!]"
             message.append(info)
             message_notice(message, success)  # 发送成功消息给推送，并打印到终端。
         print(info)

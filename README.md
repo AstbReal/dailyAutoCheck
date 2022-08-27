@@ -60,3 +60,6 @@
    - [2022.7.2](https://github.com/AstbReal/glados-checkin/blob/master/README.md)   
       - 修复 触发反爬虫机制的问题([Author:](https://github.com/tyIceStream/GLaDOS_Checkin))
 
+   - [2022.8.27]()
+     - 修改多用户的cookie，使用`json`可视化更好
+     - 可以选定指定`id`用户取消打卡(避免频繁修改cookie的值)
