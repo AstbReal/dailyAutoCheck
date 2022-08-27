@@ -35,15 +35,38 @@
    `json`格式检查网址: [json在线检查](https://www.sojson.com/)
 
    - GLADOS_COOKIE（**必填**） 
-     - 支持多用户签到：此处填写格式为`json`格式，示例：`[{"id":0,"name":"xxxtest1","cookie":"xxx"},{"id":1,"name":"xxxtest2","cookie":"xxx"}]`
+     - 支持多用户签到：此处填写格式为`json`格式，示例：
+      ```json
+      [{
+	   "id": 0,
+	   "name": "xxxtest1",
+	   "cookie": "xxx"
+      }, {
+	   "id": 1,
+	   "name": "xxxtest2",
+	   "cookie": "xxx"
+      }]
+      
+      // 压缩后的格式
+      [{"id":0,"name":"xxxtest1","cookie":"xxx"},{"id":1,"name":"xxxtest2","cookie":"xxx"}]
+      ```
    - CLOSE_USER (选填)
-     - 可以选择性关闭某一用户的签到, 采用`json`格式填写: `[{"id":1,"check":false}]`
+	  - 可以选择性关闭某一用户的签到, 采用`json`格式填写:
+	  ```json
+      [{
+      "id": 0,
+      "check": false
+      }]
+     
+     // 压缩后格式
+     [{"id":0,"check":false}]
+     ```
    - SERVE（server酱开关，默认是off，填on的话，会同时开启cookie失效通知和签到成功通知）
    - SERVER_SCKEY（填写server酱sckey，不开启server酱则不用填）
    - WECHAT_SECRET (企业微信的secret)
    - ENTERPRISE_ID (在我的企业中查看企业ID)
    - APP_ID (自建通知APP的ID)
-
+   
 5. 以上设置完毕后，每天零点会自动触发，并会执行自动main.py，如果开启server酱，会自动发通知到微信上。
 
 6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
