@@ -38,6 +38,7 @@ if __name__ == "__main__":
                     message_notice(msg, success)
                     break
         if passThisUser:
+            passThisUser = False
             continue
 
         print(f"第{index+1}个账号正在签到...")
