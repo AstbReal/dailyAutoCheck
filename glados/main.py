@@ -16,6 +16,13 @@ fail = False
 #  代码学习来自作者：[tyIceStream]https://github.com/tyIceStream/GLaDOS_Checkin.git
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
+    # 书写检查
+    if cookies == "":
+        cookies = "[]"
+        print("cookie内容为空")
+    if closes == "":
+        closes = "[]"
+
     list_cookie = json.loads(cookies)
     list_close = json.loads(closes)
 
@@ -23,7 +30,7 @@ if __name__ == "__main__":
         # 跳过指定用户的打卡程序
         passThisUser = False
         for close in list_close:
-            if user["id"]==close["id"]:
+            if user["id"] == close["id"]:
                 if close['check'] == False:
                     print(f"已成功跳过用户{user['name']}的打卡步骤")
                     passThisUser = True
