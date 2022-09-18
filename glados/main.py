@@ -1,6 +1,5 @@
 # encoding=utf8
 import os
-from xml.dom.expatbuilder import parseString
 
 from checkin import *
 from notice import *
