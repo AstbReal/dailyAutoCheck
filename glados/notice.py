@@ -102,7 +102,7 @@ def send_to_sever(mess, time, message, ok):
 
 
 def limit_capacity(vip):
-    level = dict([(1, 10), (11, 50), (21, 200),
+    level = dict([(1, 10), (11, 30), (21, 200),
                  (31, 500), (41, 2000)])
     if vip in [1, 11, 21, 31, 41]:
         return level[vip]
