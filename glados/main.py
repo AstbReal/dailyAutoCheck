@@ -27,7 +27,7 @@ if __name__ == "__main__":
     dict_close = dict()  # 转化成字典形式
 
     for close in list_close:
-        dict_close[close["id"]] = close["check"]
+        dict_close[close["id"]] = close["passcheck"]
 
     for index, user in enumerate(list_cookie):
         # 跳过指定用户的打卡程序
