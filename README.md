@@ -6,7 +6,7 @@
 
 #### 注册地址：
 
-1、打开 https://github.com/glados-network/GLaDOS ，找到[`<u>`***Register***`</u>`]，打开链接，填写邮箱进行登录。
+1、打开 https://github.com/glados-network/GLaDOS ，找到[`<u>`***Register*** `</u>`]，打开链接，填写邮箱进行登录。
 
 2、输入激活码 `25I7Q-0AA9E-T06GM-3M90I`，进行激活，获得3天试用。
 
@@ -62,7 +62,7 @@
    - SERVE（选填：填on（默认off）的话，会同时开启cookie失效通知和签到成功通知）
    - SERVER_SCKEY（选填：填写server酱sckey，不开启server酱则不用填）
 
-     若要开通企业微信提醒（选填）：
+     若要开通企业微信提醒（选填），现在的企业微信新的自建应用需要添加白名单IP，不建议使用，很大概率收不到消息：
 
      - WECHAT_SECRET (企业微信的secret)
      - ENTERPRISE_ID (在我的企业中查看企业ID)
