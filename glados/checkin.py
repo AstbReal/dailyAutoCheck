@@ -1,7 +1,8 @@
 import io
 import json
-import subprocess
 import sys
+import platform
+import subprocess
 import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -9,15 +10,24 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def get_driver_version():
-    cmd = r'''powershell -command "&{(Get-Item 'C:\Program Files\Google\Chrome\Application\chrome.exe').VersionInfo.ProductVersion}"'''
+    sys = platform.system()
+
+    if sys == 'Linux':
+        cmd = r'''google-chrome --version'''
+    elif sys == 'Windows':
+        cmd = r'''powershell -command "&{(Get-Item 'C:\Program Files\Google\Chrome\Application\chrome.exe').VersionInfo.ProductVersion}"'''
     try:
         out, err = subprocess.Popen(
             cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        out = out.decode('utf-8').split(".")[0]
-        return out
     except IndexError as e:
         print('Check chrome version failed:{}'.format(e))
         return 0
+
+    if sys=='Linux':
+        out = out.decode('utf-8').split(" ")[2].split(".")[0]
+    elif sys=='Windows':
+        out = out.decode('utf-8').split(".")[0]
+    return out
 
 
 def get_checkin(driver):

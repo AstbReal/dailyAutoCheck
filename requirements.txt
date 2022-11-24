@@ -1,1 +1,2 @@
-undetected_chromedriver
+undetected_chromedriver==3.1.7
+requests==2.28.1
