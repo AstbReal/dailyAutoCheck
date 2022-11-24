@@ -12,8 +12,8 @@ FAIL = False
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
     # 填入glados账号对应cookie
-    cookies = os.environ.get('GLADOS_COOKIE', '[{"id":1}]')
-    closes = os.environ.get('CLOSE_USER', '{"pass_ids":[1]}')
+    cookies = os.environ.get('GLADOS_COOKIE', '[]')
+    closes = os.environ.get('CLOSE_USER', '{"pass_ids":[]}')
 
     try:
         # 跳过的用户转成字典
