@@ -163,11 +163,11 @@ class MsgSender:
                 "duplicate_check_interval": 600
             }
             response = requests.post(
-                send_msg_url, data=json.dumps(data))
+                send_msg_url, data=json.dumps(data)).text
             if response["errcode"] == 0:
                 print(f"[WeCom] Send message to WeCom successfully.")
             if response["errcode"] != 0:
-                print(f"[WeCom] [Send Message Response]{response.text}")
+                print(f"[WeCom] [Send Message Response]{response}")
                 return -1
         return 0
 
