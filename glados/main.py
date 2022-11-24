@@ -12,19 +12,24 @@ FAIL = False
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
     # 填入glados账号对应cookie
-    cookies = os.environ.get('GLADOS_COOKIE', '')
-    closes = os.environ.get('CLOSE_USER', None)
+    cookies = os.environ.get('GLADOS_COOKIE', '[]')
+    closes = os.environ.get('CLOSE_USER', 'NoPass')
 
-    # 书写检查
-    assert len(cookies) != 0, "Cookie is empty!"
+    try:
+        # 跳过的用户转成字典
+        dict_close = dict()  # 转化成字典形式
+        if closes != 'NoPass':
+            for close in json.loads(closes):
+                dict_close[close["id"]] = close["passcheck"]
 
-    # 跳过的用户转成字典
-    dict_close = dict()  # 转化成字典形式
-    if closes!=None:
-        for close in json.loads(closes):
-            dict_close[close["id"]] = close["passcheck"]
+        list_cookie = json.loads(cookies)
+    except Exception as e:
+        print(Exception, ":", e)
+        raise SystemExit
 
-    list_cookie = json.loads(cookies)
+    #书写检查
+    assert len(list_cookie) != 0 , "Cookie is empty"
+
     for user in list_cookie:
         # 跳过指定用户的打卡程序
         if dict_close.get(user["id"], False):
