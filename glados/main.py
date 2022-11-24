@@ -8,20 +8,21 @@ from notice import *
 SUCCESS = True
 FAIL = False
 
+# 填入glados账号对应cookie
+cookies = os.environ.get('GLADOS_COOKIE', '[]')
+closes = os.environ.get('CLOSE_USER', '{"pass_ids":[]}')
+
+
 #  代码学习来自作者：[tyIceStream]https://github.com/tyIceStream/GLaDOS_Checkin.git
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
-    # 填入glados账号对应cookie
-    cookies = os.environ.get('GLADOS_COOKIE', '[]')
-    closes = os.environ.get('CLOSE_USER', '{"pass_ids":[]}')
-
     try:
+        list_cookie = json.loads(cookies)
         # 跳过的用户转成字典
         closes = json.loads(closes)
-        list_cookie = json.loads(cookies)
     except Exception as e:
         print(Exception, ": Json 解析出错 --", e)
-        raise SystemExit
+        raise SyntaxError
 
     #书写检查
     assert len(list_cookie) != 0 , "Cookie is empty"
