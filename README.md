@@ -45,7 +45,7 @@
        ````
    - CLOSE_USER (选填)
 
-     - 可以选择性关闭某一用户的签到, 采用 `json`格式填写: `[{"id":1,"passcheck":false}]`
+     - 可以选择性关闭某一用户的签到, 采用 `json`格式填写: `{"pass_ids":[1,2,3]}`
    - SERVER_SCKEY（填写server酱sckey）(选填)
    - WECHAT_TYPE （企业微信自建应用发送文本类型：有以下选择 `text`,`markdown`）(选填，默认 text)
    - 企业微信自建应用 （选填）

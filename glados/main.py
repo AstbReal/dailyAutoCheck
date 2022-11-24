@@ -12,17 +12,12 @@ FAIL = False
 #  多账号的企业微信通知会以多条的形式发送，如要合并，请自行更改代码。
 if __name__ == "__main__":
     # 填入glados账号对应cookie
-    cookies = os.environ.get('GLADOS_COOKIE', '[]')
-    closes = os.environ.get('CLOSE_USER', '[]')
+    cookies = os.environ.get('GLADOS_COOKIE', '[{"id":1}]')
+    closes = os.environ.get('CLOSE_USER', '{"pass_ids":[1]}')
 
     try:
         # 跳过的用户转成字典
-        dict_close = dict()  # 转化成字典形式
         closes = json.loads(closes)
-        if len(closes) != 0 :
-            for close in closes:
-                dict_close[close["id"]] = close["passcheck"]
-
         list_cookie = json.loads(cookies)
     except Exception as e:
         print(Exception, ": Json 解析出错 --", e)
@@ -33,7 +28,7 @@ if __name__ == "__main__":
 
     for user in list_cookie:
         # 跳过指定用户的打卡程序
-        if dict_close.get(user["id"], False):
+        if user["id"] in closes.get("pass_ids"):
             print(f"已成功跳过用户{user['name']}的打卡步骤")
             # message_notice(msg, success)
             continue
