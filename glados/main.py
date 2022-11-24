@@ -13,18 +13,19 @@ FAIL = False
 if __name__ == "__main__":
     # 填入glados账号对应cookie
     cookies = os.environ.get('GLADOS_COOKIE', '[]')
-    closes = os.environ.get('CLOSE_USER', 'NoPass')
+    closes = os.environ.get('CLOSE_USER', '[]')
 
     try:
         # 跳过的用户转成字典
         dict_close = dict()  # 转化成字典形式
-        if closes != 'NoPass':
-            for close in json.loads(closes):
+        closes = json.loads(closes)
+        if len(closes) != 0 :
+            for close in closes:
                 dict_close[close["id"]] = close["passcheck"]
 
         list_cookie = json.loads(cookies)
     except Exception as e:
-        print(Exception, ":", e)
+        print(Exception, ": Json 解析出错 --", e)
         raise SystemExit
 
     #书写检查
