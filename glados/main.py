@@ -13,14 +13,16 @@ FAIL = False
 if __name__ == "__main__":
     # 填入glados账号对应cookie
     cookies = os.environ.get('GLADOS_COOKIE', '')
-    closes = os.environ.get('CLOSE_USER', '[]')
+    closes = os.environ.get('CLOSE_USER', None)
 
     # 书写检查
     assert len(cookies) != 0, "Cookie is empty!"
 
+    # 跳过的用户转成字典
     dict_close = dict()  # 转化成字典形式
-    for close in json.loads(closes):
-        dict_close[close["id"]] = close["passcheck"]
+    if closes!=None:
+        for close in json.loads(closes):
+            dict_close[close["id"]] = close["passcheck"]
 
     list_cookie = json.loads(cookies)
     for user in list_cookie:
