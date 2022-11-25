@@ -10,6 +10,7 @@ FAIL = False
 
 # 填入glados账号对应cookie
 cookies = os.environ.get('GLADOS_COOKIE', '[]')
+closes = '{"pass_ids":[]}'
 if os.environ.get('CLOSE_USER'):
     closes = os.environ.get('CLOSE_USER')
 
