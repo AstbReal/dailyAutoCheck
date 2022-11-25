@@ -143,11 +143,12 @@ class MsgSender:
         wepid, wsecret, appid = tokens
 
         get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wepid}&corpsecret={wsecret}"
-        resp = requests.get(get_token_url).json()
-        if resp["errcode"]!=0:
+        resp = requests.get(get_token_url)
+        resp_json = resp.json()
+        if resp_json["errcode"]!=0:
             print(f"[Wecom] [Get Token Response]{resp.text}")
 
-        access_token = resp.get('access_token')
+        access_token = resp_json.get('access_token')
         if access_token is None or len(access_token) == 0:
             return -1
 
@@ -162,12 +163,12 @@ class MsgSender:
                 },
                 "duplicate_check_interval": 600
             }
-            response = requests.post(
-                send_msg_url, data=json.dumps(data)).text
-            if response["errcode"] == 0:
+            resp = requests.post(send_msg_url, data=json.dumps(data))
+            resp_json = resp.json()
+            if resp_json["errcode"] == 0:
                 print(f"[WeCom] Send message to WeCom successfully.")
-            if response["errcode"] != 0:
-                print(f"[WeCom] [Send Message Response]{response}")
+            if resp_json["errcode"] != 0:
+                print(f"[WeCom] [Send Message Response]{resp.text}")
                 return -1
         return 0
 
