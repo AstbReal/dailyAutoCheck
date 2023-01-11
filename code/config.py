@@ -49,6 +49,7 @@ CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如�
 
 
 class Config:
+
     # 用户数据列表
     users_datas_str = os.environ.get('USERS_DATA', '[]')
     
@@ -63,7 +64,13 @@ class Config:
         self.users_datas: list[dict] = json.loads(self.users_datas_str)
 
     def load_users_data(self) -> list[dict]:
-        return self.users_datas
+        users_datas =list[dict]()
+
+        for user in self.users_datas:
+            if user.get("id")!=None:
+                users_datas.append(user)
+
+        return users_datas
 
 
     def load_closer(self) -> dict:
