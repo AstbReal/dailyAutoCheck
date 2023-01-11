@@ -23,7 +23,7 @@ jobs:
       - run: pip install -r ./requirements.txt
       - name: Run checkin
         run: |
-          python ./glados/main.py
+          python ./code/main.py
         env:
           USERS_DATA : ${{ secrets.USERS_DATA}}
           CLOSE_USER: ${{ secrets.CLOSE_USERS }}
