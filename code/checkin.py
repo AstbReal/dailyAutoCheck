@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 class Checkin:
-    def get_driver_version():
+    def get_driver_version(self):
         sys = platform.system()
     
         if sys == 'Linux':
@@ -30,7 +30,7 @@ class Checkin:
         return out
     
     
-    def get_checkin(driver):
+    def get_checkin(self,driver):
         checkin_url = "https://glados.rocks/api/user/checkin"
         checkin_query = """
             (function (){
@@ -48,7 +48,7 @@ class Checkin:
         return checkin["code"], checkin["message"]
     
     
-    def get_Status(driver):
+    def get_Status(self,driver):
         status_url = "https://glados.rocks/api/user/status"
         status_query = """
             (function (){

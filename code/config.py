@@ -49,14 +49,13 @@ CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如�
 
 
 class Config:
-
-    # 用户数据列表
-    users_datas_str = os.environ.get('USERS_DATA', '[]')
-    
-    # 关闭用户名单
-    closers_str = os.environ.get('CLOSE_USERS', '[]')
-
     def __init__(self) -> None:
+        # 用户数据列表
+        self.users_datas_str = os.environ.get('USERS_DATA', '[]')
+        
+        # 关闭用户名单
+        self.closers_str = os.environ.get('CLOSE_USERS', '[]')
+        
         # 书写检查
         assert self.users_datas_str != '[]'and len(
             self.users_datas_str) != 0 , "Users data is empty!"
