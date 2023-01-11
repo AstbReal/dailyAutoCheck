@@ -43,7 +43,7 @@
        // 压缩后的格式
        [{"id":0,"name":"xxxtest1","cookie":"xxx"},{"id":1,"name":"xxxtest2","cookie":"xxx"}]
        ````
-   - CLOSE_USER (选填)
+   - CLOSE_USERS (选填)
 
      - 可以选择性关闭某一用户的签到, 采用 `json`格式填写: `[{"id":1,"passcheck":false}]`
    - SERVER_SCKEY（填写server酱sckey）(选填)
