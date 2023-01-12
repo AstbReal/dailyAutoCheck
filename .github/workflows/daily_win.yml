@@ -23,7 +23,7 @@ jobs:
       - run: pip install -r ./requirements.txt
       - name: Run checkin
         run: |
-          python ./code/main.py
+          python ./codes/main.py
         env:
           USERS_DATA : ${{ secrets.USERS_DATA}}
           CLOSE_USER: ${{ secrets.CLOSE_USERS }}
