@@ -1,14 +1,14 @@
 # encoding=utf8
-from notice import MsgSender
-from checkin import Checkin
-from config import Config
+from .notice import MsgSender
+from .checkin import Checkin
+from .config import Config
 
 # 若需要通知功能，请看notice.py代码.
 SUCCESS = True
 FAIL = False
 NO_PASS = False
 
-if __name__ == "__main__":
+def run_check():
     users_datas = Config().load_users_data()
     dict_close = Config().load_closer()
     auto_checker = Checkin()
@@ -35,3 +35,6 @@ if __name__ == "__main__":
             message.append(info)
             msg_sender.message_notice(message, SUCCESS)  # 发送成功消息给推送，并打印到终端。
         print(info)
+
+if __name__ == "__main__":
+    run_check()
