@@ -61,6 +61,7 @@ class Config:
             self.users_datas_str) != 0 , "Users data is empty!"
 
         self.users_datas: list[dict] = json.loads(self.users_datas_str)
+        self.closers: list[dict] = json.loads(self.closers_str)
 
     def load_users_data(self) -> list[dict]:
         users_datas =list[dict]()
@@ -75,9 +76,7 @@ class Config:
     def load_closer(self) -> dict:
         dict_close = dict()  # 转化成字典形式
 
-        closers: list[dict] = json.loads(self.closers_str)
-
-        for closer in closers:
+        for closer in self.closers:
             dict_close[closer.get("pass_id")] = True
         return dict_close
 
