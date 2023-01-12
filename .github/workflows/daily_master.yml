@@ -1,13 +1,15 @@
-name: daily-dev
+name: daily-master
 
 on:
   workflow_dispatch:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [dev]
+  # push:
+  #   branches: [master]
   #pull_request:
   #  branches: [ main ]
 
+  schedule:
+    - cron: 0 1 * * *
 
 jobs:
   build:
@@ -15,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: dev
+          ref: master
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -23,7 +25,7 @@ jobs:
       - run: pip install -r ./requirements.txt
       - name: Run checkin
         run: |
-          python ./code/main.py
+          python ./codes/main.py
         env:
           USERS_DATA : ${{ secrets.USERS_DATA}}
           CLOSE_USER: ${{ secrets.CLOSE_USERS }}
