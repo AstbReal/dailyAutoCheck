@@ -1,7 +1,7 @@
 # encoding=utf8
-from .notice import MsgSender
-from .checkin import Checkin
-from .config import Config
+from notice import MsgSender
+from checkin import Checkin
+from config import Config
 
 # 若需要通知功能，请看notice.py代码.
 SUCCESS = True
