@@ -1,40 +1,45 @@
 import json
-import os
 import requests
 
-
 class MsgSender:
-    # 企业微信是以何种形式通知[text,markdown,picture(未实现)],默认text形式
-    wtype = os.environ.get("WECHAT_TYPE", 'text')
-    # 企业微信应用的密钥
-    wsecret = os.environ.get("WECHAT_SECRET", None)
-    # 企业微信企业ID
-    wepid = os.environ.get("ENTERPRISE_ID", None)
-    # 企业微信应用ID
-    appid = os.environ.get("APP_ID", None)
-    # 企业微信机器人
-    weCom_webhook = os.environ.get("WECOM_WEBHOOK", None)
-    # pushplus的token
-    pushplus_token = os.environ.get("PUSHPLUS_TOKEN", None)
-    # 填写server酱sckey,不开启server酱则不用填
-    serverChan_sendkey = os.environ.get("SERVER_SCKEY", None)
-    # bark的token
-    bark_deviceKey = os.environ.get("BARK_DEVICEKEY", None)
 
-    def __init__(self) -> None:
-        # 企业微信的token选择
-        wecom = {
+    def __init__(self,config:dict) -> None:
+        ## 此处设置是全局属性，可以通过构造器的形式覆盖该配置。
+        # 企业微信是以何种形式通知[text,markdown,picture(未实现)],默认text形式
+        wecom = config.get("WECOM", dict())
+        wtype = wecom.get("TYPE", 'text')
+        # 企业微信应用的密钥
+        wsecret = wecom.get("SECRET", None)
+        # 企业微信企业ID
+        wepid = wecom.get("ENTERPRISE_ID", None)
+        # 企业微信应用ID
+        appid = wecom.get("APP_ID", None)
+
+        # 企业微信机器人
+        weCom_webhook = config.get("WECOM_WEBHOOK", None)
+
+        # pushplus的token
+        pushplus_token = config.get("PUSHPLUS_TOKEN", None)
+
+        # 填写server酱sckey,不开启server酱则不用填
+        serverChan_sendkey = config.get("SERVER_SCKEY", None)
+
+        # bark的token
+        bark_deviceKey = config.get("BARK_DEVICEKEY", None)
+
+        # 企业微信的发送通道的选择
+        wecom_method_name = {
             'text': 'token_weCom',
             'markdown': 'token_weCom_markdown'
         }
 
         # 各种发送通道的token字典
         self.notice_tokens = {
-            wecom.get(self.wtype, 'token_weCom'): [self.wepid, self.wsecret, self.appid],
-            "token_weComBoot": self.weCom_webhook,
-            "token_pushplus": self.pushplus_token,
-            "token_serverChan": self.serverChan_sendkey,
-            "token_bark": self.bark_deviceKey,
+            wecom_method_name.get(wtype, 'token_weCom'): [wepid, wsecret, appid],
+            "token_weComBoot": weCom_webhook,
+            "token_pushplus": pushplus_token,
+            "token_serverChan": serverChan_sendkey,
+            "token_bark": bark_deviceKey,
         }
 
         # 发送通道的方法字典
@@ -143,16 +148,17 @@ class MsgSender:
         wepid, wsecret, appid = tokens
 
         get_token_url = f"https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={wepid}&corpsecret={wsecret}"
+
         resp = requests.get(get_token_url)
         resp_json = resp.json()
-        if resp_json["errcode"]!=0:
+        if resp_json["errcode"] != 0:
             print(f"[Wecom] [Get Token Response]{resp.text}")
-
         access_token = resp_json.get('access_token')
+
         if access_token is None or len(access_token) == 0:
             return -1
 
-        if access_token and len(access_token) > 0:
+        if  len(access_token) > 0:
             send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
             data = {
                 "touser": '@all',
@@ -166,7 +172,7 @@ class MsgSender:
             resp = requests.post(send_msg_url, data=json.dumps(data))
             resp_json = resp.json()
             if resp_json["errcode"] == 0:
-                print(f"[WeCom] Send message to WeCom successfully.")
+                print("[WeCom] Send message to WeCom successfully.")
             if resp_json["errcode"] != 0:
                 print(f"[WeCom] [Send Message Response]{resp.text}")
                 return -1

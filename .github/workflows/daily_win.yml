@@ -1,0 +1,30 @@
+name: daily-dev
+
+on:
+  workflow_dispatch:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [dev]
+  #pull_request:
+  #  branches: [ main ]
+
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: dev
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - run: pip install -r ./requirements.txt
+      - name: Run checkin
+        run: |
+          python ./code/main.py
+        env:
+          USERS_DATA : ${{ secrets.USERS_DATA}}
+          CLOSE_USER: ${{ secrets.CLOSE_USERS }}
+      - uses: gautamkrishnar/keepalive-workflow@master
