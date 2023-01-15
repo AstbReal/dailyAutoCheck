@@ -26,5 +26,5 @@ jobs:
           python ./codes/main.py
         env:
           USERS_DATA: ${{ secrets.USERS_DATA }}
-          CLOSE_USERS: ${{ secrets.CLOSE_USERS }}
+          CLOSERS: ${{ secrets.CLOSERS }}
       - uses: gautamkrishnar/keepalive-workflow@master

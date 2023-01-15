@@ -52,8 +52,8 @@ class Config:
         self.users_datas_str = os.environ.get('USERS_DATA', '[]')
         
         # 关闭用户名单
-        self.closers_str = os.environ.get('CLOSE_USERS')
-        print(self.closers_str)
+        self.closers_str = os.environ.get('CLOSERS')
+        print('CLOSERS:'+self.closers_str)
         if self.closers_str == None:
             self.closers_str = '{"pass_ids":[]}'
 
