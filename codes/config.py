@@ -47,25 +47,26 @@ CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如�
 
 
 class Config:
-    def __init__(self) -> None:
-        # 用户数据列表
-        self.users_datas_str = os.environ.get('USERS_DATA', '[]')
+    # 用户数据列表
+    users_datas_str = os.environ.get('USERS_DATA', '[]')
 
-        # 关闭用户名单
-        self.closers_str = os.environ.get('CLOSERS','{"pass_ids":[]}')
+    # 关闭用户名单
+    closers_str = os.environ.get('CLOSERS','{"pass_ids":[]}')
+    
+    def __init__(self) -> None:
+
         # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 
         # 书写检查
         assert self.users_datas_str != '[]'and len(
             self.users_datas_str) != 0 , "Users data is empty!"
 
+        self.users_datas: list[dict] = json.loads(self.users_datas_str)
         try:
-            self.users_datas: list[dict] = json.loads(self.users_datas_str)
             self.closers: dict = json.loads(self.closers_str)
         except Exception as e :
-            self.users_datas = []
             self.closers = {"pass_ids": []}
-            print("出现JSON解析错误，已将配置重置！")
+            print("CLOSERS出现JSON解析错误，已将配置重置！")
 
     def load_users_data(self) -> list[dict]:
         users_datas =list[dict]()

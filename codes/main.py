@@ -8,8 +8,9 @@ SUCCESS = True
 FAIL = False
 NO_PASS = False
 
+config = Config()
+
 def run_check():
-    config = Config()
     auto_checker = Checkin()
     users_datas = config.load_users_data()
     dict_close = config.load_closer()
