@@ -62,7 +62,7 @@ class Config:
         try:
             self.users_datas: list[dict] = json.loads(self.users_datas_str)
             self.closers: dict = json.loads(self.closers_str)
-        except KeyError as e :
+        except Exception as e :
             self.users_datas = []
             self.closers = {"pass_ids": []}
             print("出现JSON解析错误，已将配置重置！")
