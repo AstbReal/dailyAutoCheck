@@ -39,7 +39,7 @@ import os
     }
 ]
 
-CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如下:
+USERS_CLOSERS为想关闭的用户，避免重复填写USERS_DATA，其格式如下:
 {
     "pass_ids":[0,1...]
 }
@@ -47,7 +47,7 @@ CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如�
 
 
 class Config:
-    
+
     def __init__(self) -> None:
         # 用户数据列表
         self.users_datas_str = os.getenv('USERS_DATA', '[]')
