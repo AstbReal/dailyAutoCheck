@@ -99,11 +99,11 @@
        3. WECOM_WEBHOOK (企业微信机器人)（选填）
        4. PUSHPLUS_TOKEN（Pushplus）（选填）
        5. BARK_DEVICEKEY （Bark）（选填）
-   - CLOSE_USERS (选填)
+   - CLOSERS (选填)
 
-     1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:  
-        `{"pass_ids":[0,1...]}`  
-        示例（关闭id为2, 3用户的签到）:  
+     1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:
+        `{"pass_ids":[0,1...]}`
+        示例（关闭id为2, 3用户的签到）:
         `{"pass_ids":[2,3]}`
 5. 以上设置完毕后，每天零点会自动触发，并会执行自动main.py, 并发送通知。
 6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**

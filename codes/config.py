@@ -50,15 +50,16 @@ class Config:
     def __init__(self) -> None:
         # 用户数据列表
         self.users_datas_str = os.environ.get('USERS_DATA', '[]')
-        
+
         # 关闭用户名单
         self.closers_str = os.environ.get('CLOSERS')
-        print('CLOSERS:'+self.closers_str)
+        print('CLOSERS:' + self.closers_str + 'and type ' +
+              type(self.closers_str))
         if self.closers_str == None:
             self.closers_str = '{"pass_ids":[]}'
 
         print(self.closers_str)
-        
+
         # 书写检查
         assert self.users_datas_str != '[]'and len(
             self.users_datas_str) != 0 , "Users data is empty!"
@@ -95,4 +96,3 @@ class Config:
                 parent_tokens:dict = user['parent_notice_tokens']
 
         return tokens.get(id,parent_tokens)
-
