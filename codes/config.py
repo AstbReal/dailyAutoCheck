@@ -53,9 +53,10 @@ class Config:
         
         # 关闭用户名单
         self.closers_str = os.environ.get('CLOSE_USERS')
+        print(self.closers_str)
         if self.closers_str == None:
             self.closers_str = '{"pass_ids":[]}'
-            
+
         print(self.closers_str)
         
         # 书写检查
