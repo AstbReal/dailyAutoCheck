@@ -39,29 +39,34 @@ import os
     }
 ]
 
-CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如下:
-[
-    {
-        "pass_id":0
-    },{...}
-]
+USERS_CLOSERS为想关闭的用户，避免重复填写USERS_DATA，其格式如下:
+{
+    "pass_ids":[0,1...]
+}
 """
 
 
 class Config:
+
     def __init__(self) -> None:
         # 用户数据列表
-        self.users_datas_str = os.environ.get('USERS_DATA', '[]')
-        
+        self.users_datas_str = os.getenv('USERS_DATA', '[]')
+
         # 关闭用户名单
-        self.closers_str = os.environ.get('CLOSE_USERS', '[]')
-        
+        self.closers_str = os.getenv('USERS_CLOSERS','{"pass_ids":[]}')
+
+        # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
+
         # 书写检查
         assert self.users_datas_str != '[]'and len(
             self.users_datas_str) != 0 , "Users data is empty!"
 
         self.users_datas: list[dict] = json.loads(self.users_datas_str)
-        self.closers: list[dict] = json.loads(self.closers_str)
+        try:
+            self.closers: dict = json.loads(self.closers_str)
+        except Exception as e :
+            self.closers = {"pass_ids": []}
+            print("CLOSERS出现JSON解析错误，已将配置重置！")
 
     def load_users_data(self) -> list[dict]:
         users_datas =list[dict]()
@@ -76,8 +81,8 @@ class Config:
     def load_closer(self) -> dict:
         dict_close = dict()  # 转化成字典形式
 
-        for closer in self.closers:
-            dict_close[closer.get("pass_id")] = True
+        for id in self.closers['pass_ids']:
+            dict_close[id] = True
         return dict_close
 
     def load_tokens_by_id(self,id:int)->dict:
@@ -92,4 +97,3 @@ class Config:
                 parent_tokens:dict = user['parent_notice_tokens']
 
         return tokens.get(id,parent_tokens)
-

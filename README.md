@@ -1,11 +1,11 @@
-# **[dailyAutoCheck](https://github.com/AstbReal/dailyAutoCheck)**
+# Daily Auto Check
 
 **1. 教育邮箱已经出现签到不给天数的问题，建议开一个Basic套餐。**
 **2. 提醒：actions 有可能被封禁，请自己保存好代码。**
 
 ## 注册地址：
 
-1、打开 https://github.com/glados-network/GLaDOS ，找到[`<u>`***Register*** `</u>`]，打开链接，填写邮箱进行登录。
+1、打开 https://github.com/glados-network/GLaDOS ，找到***Register***，打开链接，填写邮箱进行登录。
 
 2、输入激活码 `25I7Q-0AA9E-T06GM-3M90I`，进行激活，获得3天试用。
 
@@ -67,7 +67,7 @@
        ]
 
        // 示例:
-       // 只想要微信通知，且多用户使用同一通道。
+       // 只想要微信通知，且多用户使用同一通知通道。
        [
            {
                "id": 0,
@@ -89,7 +89,7 @@
        [{"id":0,"name":"an","cookies":"xxx"},{...},{"parent_notice_tokens":{"WECOM":{"TYPE":"text or markdown","SECRET":"xxx","ENTERPRISE_ID":"xxx","APP_ID":"xxx"}}}]
 
        ````
-     - `notice_tokens`字段：
+     - 其中 `notice_tokens`字段介绍：
        1. 企业微信自建应用 (WECOM) （选填）
           - TYPE （企业微信自建应用发送文本类型：有以下选择 `text`,`markdown`）(选填，默认 text)
           - SECRET (企业微信的secret)
@@ -99,10 +99,13 @@
        3. WECOM_WEBHOOK (企业微信机器人)（选填）
        4. PUSHPLUS_TOKEN（Pushplus）（选填）
        5. BARK_DEVICEKEY （Bark）（选填）
-   - CLOSE_USERS (选填)
+       
+   - USERS_CLOSERS (选填)
 
      1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:
-        `[{"pass_id":0}]`
+        `{"pass_ids":[0,1...]}`
+        示例（关闭id为2, 3用户的签到）:
+        `{"pass_ids":[2,3]}`
 5. 以上设置完毕后，每天零点会自动触发，并会执行自动main.py, 并发送通知。
 6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
