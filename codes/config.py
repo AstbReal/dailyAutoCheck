@@ -51,7 +51,7 @@ class Config:
     users_datas_str = os.environ.get('USERS_DATA', '[]')
 
     # 关闭用户名单
-    closers_str = os.environ.get('CLOSERS','{"pass_ids":[]}')
+    closers_str = os.environ.get('USERS_CLOSERS','{"pass_ids":[]}')
     
     def __init__(self) -> None:
 

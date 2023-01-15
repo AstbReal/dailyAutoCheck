@@ -99,7 +99,7 @@
        3. WECOM_WEBHOOK (企业微信机器人)（选填）
        4. PUSHPLUS_TOKEN（Pushplus）（选填）
        5. BARK_DEVICEKEY （Bark）（选填）
-   - CLOSERS (选填)
+   - USERS_CLOSERS (选填)
 
      1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:
         `{"pass_ids":[0,1...]}`
