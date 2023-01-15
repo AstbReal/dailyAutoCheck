@@ -1,11 +1,11 @@
 # Daily Auto Check
 
-**1. 教育邮箱已经出现签到不给天数的问题，建议开一个Basic套餐。**  
+**1. 教育邮箱已经出现签到不给天数的问题，建议开一个Basic套餐。**
 **2. 提醒：actions 有可能被封禁，请自己保存好代码。**
 
 ## 注册地址：
 
-1、打开 https://github.com/glados-network/GLaDOS ，找到[`<u>`***Register*** `</u>`]，打开链接，填写邮箱进行登录。
+1、打开 https://github.com/glados-network/GLaDOS ，找到***Register***，打开链接，填写邮箱进行登录。
 
 2、输入激活码 `25I7Q-0AA9E-T06GM-3M90I`，进行激活，获得3天试用。
 
@@ -101,9 +101,9 @@
        5. BARK_DEVICEKEY （Bark）（选填）
    - CLOSE_USERS (选填)
 
-     1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:
-        `{"pass_ids":[0,1...]}`
-        示例（关闭id为2, 3用户的签到）:
+     1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:  
+        `{"pass_ids":[0,1...]}`  
+        示例（关闭id为2, 3用户的签到）:  
         `{"pass_ids":[2,3]}`
 5. 以上设置完毕后，每天零点会自动触发，并会执行自动main.py, 并发送通知。
 6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**

@@ -9,13 +9,14 @@ FAIL = False
 NO_PASS = False
 
 def run_check():
-    users_datas = Config().load_users_data()
-    dict_close = Config().load_closer()
+    config = Config()
     auto_checker = Checkin()
+    users_datas = config.load_users_data()
+    dict_close = config.load_closer()
 
     for user in users_datas:
         # 加载通知模块配置
-        msg_sender = MsgSender(Config().load_tokens_by_id(user["id"]))
+        msg_sender = MsgSender(config.load_tokens_by_id(user["id"]))
 
         # 跳过指定用户的打卡程序
         if dict_close.get(user["id"],NO_PASS):
