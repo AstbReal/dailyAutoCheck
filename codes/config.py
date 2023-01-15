@@ -53,8 +53,7 @@ class Config:
 
         # 关闭用户名单
         self.closers_str = os.environ.get('CLOSERS')
-        print('CLOSERS:' + self.closers_str + 'and type ' +
-              type(self.closers_str))
+        print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
         if self.closers_str == None:
             self.closers_str = '{"pass_ids":[]}'
 
