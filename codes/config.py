@@ -47,13 +47,13 @@ CLOSE_USERS为想关闭的用户，避免重复填写USERS_DATA，其格式如�
 
 
 class Config:
-    # 用户数据列表
-    users_datas_str = os.getenv('USERS_DATA', '[]')
-
-    # 关闭用户名单
-    closers_str = os.getenv('USERS_CLOSERS','{"pass_ids":[]}')
     
     def __init__(self) -> None:
+        # 用户数据列表
+        self.users_datas_str = os.getenv('USERS_DATA', '[]')
+
+        # 关闭用户名单
+        self.closers_str = os.getenv('USERS_CLOSERS','{"pass_ids":[]}')
 
         # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 
