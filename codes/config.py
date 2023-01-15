@@ -52,12 +52,11 @@ class Config:
         self.users_datas_str = os.environ.get('USERS_DATA', '[]')
 
         # 关闭用户名单
-        self.closers_str = os.environ.get('CLOSERS')
-        print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
-        if self.closers_str == None:
+        if 'CLOSERS' in os.environ:   
+            self.closers_str = os.environ.get('CLOSERS')
+        else:
             self.closers_str = '{"pass_ids":[]}'
-
-        print(self.closers_str)
+        print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 
         # 书写检查
         assert self.users_datas_str != '[]'and len(
