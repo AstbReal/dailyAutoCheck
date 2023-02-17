@@ -7,9 +7,9 @@ Daily Auto Check
 
 准备材料：普通邮箱，教育邮箱(领取免费一年)
 
-1. 打开 https://github.com/glados-network/GLaDOS，找到***Register***，打开链接，填写邮箱进行登录；无法打开的话，修改网络DNS为`8.8.8.8`，然后再访问[Glados官网](https://glados.rocks/)。
+1. 打开[Glados Github](https://github.com/glados-network/GLaDOS)，找到***Register***，打开链接，填写邮箱进行登录；无法打开的话，修改网络DNS为`8.8.8.8`，然后再访问[Glados官网](https://glados.rocks/)。
 
-2. 新用户刚注册会免费赠送3天，打开`Dashboard`，滑动滚轮一直到最下面，会出现一个`Education Plan`。
+2. 新用户刚注册会免费赠送3天，打开右上角`Dashboard`，滑动滚轮一直到最下面，会出现一个`Education Plan`。
 
    ![image-20230217122409349](resource/README/image-20230217122409349.png)
 
