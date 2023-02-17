@@ -1,4 +1,4 @@
-Daily Auto Check
+# Daily Auto Check
 
 1. **教育邮箱已经出现签到不给天数的问题，建议开一个Basic或者Pro套餐（新用户优惠套餐），其中Pro套餐可以分享出30天的Basic码（理论3个），也就是说可以4个人合作开1个Pro套餐和3个Basic套餐只花一份Pro套餐的钱。**
 2. **提醒：actions 有可能被封禁，请自己保存好代码。**
@@ -159,7 +159,7 @@ Daily Auto Check
         示例（关闭id为2, 3用户的签到）:
         `{"pass_ids":[2,3]}`
 
-6. 以上设置完毕后，每天上午11点会自动触发，并会执行自动main.py, 并发送通知，如要修改请修改`.github/workflows/daily_master.yml`文件中的cron语句。
+6. 以上设置完毕后，每天上午11点会自动触发，并会执行自动main.py, 并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
 
 7. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
