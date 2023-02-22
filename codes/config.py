@@ -87,7 +87,7 @@ class Config:
 
     def load_tokens_by_id(self,id:int)->dict:
         tokens = dict()
-        parent_token = dict()
+        parent_tokens = dict()
 
         for user in self.users_datas:
             if user.get("notice_tokens")!=None:
