@@ -1,10 +1,11 @@
 import json
 import requests
 
+
 class MsgSender:
 
-    def __init__(self,config:dict) -> None:
-        ## 此处设置是全局属性，可以通过构造器的形式覆盖该配置。
+    def __init__(self, config: dict) -> None:
+        # 此处设置是全局属性，可以通过构造器的形式覆盖该配置。
         # 企业微信是以何种形式通知[text,markdown,picture(未实现)],默认text形式
         wecom = config.get("WECOM", dict())
         wtype = wecom.get("TYPE", 'text')
@@ -158,7 +159,7 @@ class MsgSender:
         if access_token is None or len(access_token) == 0:
             return -1
 
-        if  len(access_token) > 0:
+        if len(access_token) > 0:
             send_msg_url = f'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={access_token}'
             data = {
                 "touser": '@all',

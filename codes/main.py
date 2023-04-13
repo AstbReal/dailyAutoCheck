@@ -10,6 +10,7 @@ NO_PASS = False
 
 config = Config()
 
+
 def run_check():
     auto_checker = Checkin()
     users_datas = config.load_users_data()
@@ -20,7 +21,7 @@ def run_check():
         msg_sender = MsgSender(config.load_tokens_by_id(user["id"]))
 
         # 跳过指定用户的打卡程序
-        if dict_close.get(user["id"],NO_PASS):
+        if dict_close.get(user["id"], NO_PASS):
             print(f"已成功跳过用户{user['name']}的打卡步骤")
             # message_notice(msg, success)
             continue
@@ -37,6 +38,7 @@ def run_check():
             message.append(info)
             msg_sender.message_notice(message, SUCCESS)  # 发送成功消息给推送，并打印到终端。
         print(info)
+
 
 if __name__ == "__main__":
     run_check()
