@@ -1,15 +1,13 @@
-name: daily-master
+name: daily-dev
 
 on:
   workflow_dispatch:
   # Triggers the workflow on push or pull request events but only for the main branch
-  # push:
-  #   branches: [master]
+  push:
+    branches: [dev]
   #pull_request:
   #  branches: [ main ]
 
-  schedule:
-    - cron: 0 1 * * *
 
 jobs:
   build:
@@ -17,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: master
+          ref: dev
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'

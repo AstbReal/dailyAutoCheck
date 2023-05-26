@@ -50,50 +50,60 @@ class Config:
 
     def __init__(self) -> None:
         # 用户数据列表
-        self.users_datas_str = os.getenv('USERS_DATA', '[]')
+        self.datas_str = os.getenv('USERS_DATA', '[]')
 
         # 关闭用户名单
-        self.closers_str = os.getenv('USERS_CLOSERS','{"pass_ids":[]}')
+        self.closers_str = os.getenv('USERS_CLOSERS', '{"pass_ids":[]}')
 
         # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 
         # 书写检查
-        assert self.users_datas_str != '[]'and len(
-            self.users_datas_str) != 0 , "Users data is empty!"
+        assert self.datas_str != '[]' and len(
+            self.datas_str) != 0, "Users data is empty!"
 
-        self.users_datas: list[dict] = json.loads(self.users_datas_str)
+        self.datas: list[dict] = json.loads(self.datas_str)
         try:
             self.closers: dict = json.loads(self.closers_str)
-        except Exception as e :
+        except Exception as e:
             self.closers = {"pass_ids": []}
             print("CLOSERS出现JSON解析错误，已将配置重置！")
 
-    def load_users_data(self) -> list[dict]:
-        users_datas =list[dict]()
+    def load_users(self) -> list[dict]:
+        users = list[dict]()
 
-        for user in self.users_datas:
-            if user.get("id")!=None:
-                users_datas.append(user)
+        for data in self.datas:
+            group:list[dict] = data.get("group")
+            token = self.load_group_notices_by_name(data.get("notice"))
+            if group != None:
+                for user in group:
+                    user["token"] = token
+                    users.append(user)
 
-        return users_datas
+        return users
 
+    def load_group_notices_by_name(self, name):
+        notice = dict()
 
-    def load_closer(self) -> dict:
+        for data in self.datas:
+            notices = data.get("group_notices")
+            if notices != None:
+                notice = notices.get(name)
+
+        return notice
+
+    def load_closer(self) -> dict: 
         dict_close = dict()  # 转化成字典形式
 
         for id in self.closers['pass_ids']:
             dict_close[id] = True
         return dict_close
 
-    def load_tokens_by_id(self,id:int)->dict:
-        tokens = dict()
-        parent_tokens = dict()
+    def load_tokens_by_id(self, id: int) -> dict:
+        users = self.load_users()
+        token = dict()
 
-        for user in self.users_datas:
-            if user.get("notice_tokens")!=None:
-                tokens[user['id']] = user.get('notice_tokens')
+        for user in users:
+            if user.get("id") == id:
+                token = user.get("token")
 
-            if user.get('parent_notice_tokens')!=None:
-                parent_tokens:dict = user['parent_notice_tokens']
-
-        return tokens.get(id,parent_tokens)
+        return token
