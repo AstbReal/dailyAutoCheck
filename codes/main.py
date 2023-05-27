@@ -13,12 +13,12 @@ config = Config()
 
 def run_check():
     auto_checker = Checkin()
-    users_datas = config.load_users_data()
+    users = config.load_users()
     dict_close = config.load_closer()
 
-    for user in users_datas:
+    for user in users:
         # 加载通知模块配置
-        msg_sender = MsgSender(config.load_tokens_by_id(user["id"]))
+        msg_sender = MsgSender(user.get("token"))
 
         # 跳过指定用户的打卡程序
         if dict_close.get(user["id"], NO_PASS):

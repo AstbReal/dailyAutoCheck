@@ -6,35 +6,62 @@ import os
 其中USERS_DATA的内容格式为：
 [
     {
-        "id": 0,
-        "name": "an",
-        "cookies": "xxx",
-        "notice_tokens":{
-            "WECOM":{
-                "TYPE":"text or markdown",
-                "SECRET":"xxx",
-                "ENTERPRISE_ID":"xxx",
-                "APP_ID":"xxx"
-            },
-            "WECOM_WEBHOOK":"xxx",
-            "PUSHPLUS_TOKEN":"xxx",
-            "SERVER_SCKEY":"xxx",
-            "BARK_DEVICEKEY":"xxx"
-        }
-    },{...},
-    # 默认使用父系设置，若用户自行有配置可覆盖父系设置。
+        "notice":"notice_1", //此处是选择通知的通道（在下面group_notices配置）,选填。
+        "group":[
+            {
+                "id": 0,
+                "name": "an",
+                "cookies": "xxx",
+            },...,
+            {
+                "id": 10x,
+                "name": "anx",
+                "cookies": "xxx",
+            }
+        ]
+    },...,
     {
-        "parent_notice_tokens":{
-            "WECOM":{
-                "TYPE":"text or markdown",
-                "SECRET":"xxx",
-                "ENTERPRISE_ID":"xxx",
-                "APP_ID":"xxx"
+        "notice":"notice_x",
+        "group":[
+            {
+                "id": 11x,
+                "name": "an",
+                "cookies": "xxx",
+            },...,
+            {
+                "id": 20x,
+                "name": "anx",
+                "cookies": "xxx",
+            }
+        ]
+    },
+    {
+        # 若没有通知需求，可空白。
+        "group_notices": {
+            # 每个组中的通知方式选填，若没有则不通知。
+            # notice_1 可自定义，上面notice字段引用正确即可。
+            "notice_1": {
+                "WECOM":{
+                    "TYPE":"text(markdown)",
+                    "SECRET":"xxx",
+                    "ENTERPRISE_ID":"xxx",
+                    "APP_ID":"xxx"
+                },
+                "WECOM_WEBHOOK":"xxx",
+                "PUSHPLUS_TOKEN":"xxx",
             },
-            "WECOM_WEBHOOK":"xxx",
-            "PUSHPLUS_TOKEN":"xxx",
-            "SERVER_SCKEY":"xxx",
-            "BARK_DEVICEKEY":"xxx"
+            "notice_x": {
+                "WECOM":{
+                    "TYPE":"text(markdown)",
+                    "SECRET":"xxx",
+                    "ENTERPRISE_ID":"xxx",
+                    "APP_ID":"xxx"
+                },
+                "WECOM_WEBHOOK":"xxx",
+                "PUSHPLUS_TOKEN":"xxx",
+                "SERVER_SCKEY":"xxx",
+                "BARK_DEVICEKEY":"xxx"
+            }
         }
     }
 ]
@@ -50,7 +77,7 @@ class Config:
 
     def __init__(self) -> None:
         # 用户数据列表
-        self.users_datas_str = os.getenv('USERS_DATA', '[]')
+        self.datas_str = os.getenv('USERS_DATA', '[]')
 
         # 关闭用户名单
         self.closers_str = os.getenv('USERS_CLOSERS', '{"pass_ids":[]}')
@@ -58,24 +85,38 @@ class Config:
         # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 
         # 书写检查
-        assert self.users_datas_str != '[]' and len(
-            self.users_datas_str) != 0, "Users data is empty!"
+        assert self.datas_str != '[]' and len(
+            self.datas_str) != 0, "Users data is empty!"
 
-        self.users_datas: list[dict] = json.loads(self.users_datas_str)
+        self.datas: list[dict] = json.loads(self.datas_str)
         try:
             self.closers: dict = json.loads(self.closers_str)
         except Exception as e:
             self.closers = {"pass_ids": []}
             print("CLOSERS出现JSON解析错误，已将配置重置！")
 
-    def load_users_data(self) -> list[dict]:
-        users_datas = list[dict]()
+    def load_users(self) -> list[dict]:
+        users = list[dict]()
 
-        for user in self.users_datas:
-            if user.get("id") != None:
-                users_datas.append(user)
+        for data in self.datas:
+            group: list[dict] = data.get("group")
+            token = self.get_token_by_notice_name(data.get("notice"))
+            if group != None:
+                for user in group:
+                    user["token"] = token
+                    users.append(user)
 
-        return users_datas
+        return users
+
+    def get_token_by_notice_name(self, name):
+        notice = dict()
+
+        for data in self.datas:
+            notices = data.get("group_notices")
+            if notices != None:
+                notice = notices.get(name)
+
+        return notice
 
     def load_closer(self) -> dict:
         dict_close = dict()  # 转化成字典形式
@@ -84,15 +125,15 @@ class Config:
             dict_close[id] = True
         return dict_close
 
-    def load_tokens_by_id(self, id: int) -> dict:
+    def load_tokens_by_id(self,id:int)->dict:
         tokens = dict()
         parent_tokens = dict()
 
         for user in self.users_datas:
-            if user.get("notice_tokens") != None:
+            if user.get("notice_tokens")!=None:
                 tokens[user['id']] = user.get('notice_tokens')
 
-            if user.get('parent_notice_tokens') != None:
-                parent_tokens: dict = user['parent_notice_tokens']
+            if user.get('parent_notice_tokens')!=None:
+                parent_tokens:dict = user['parent_notice_tokens']
 
-        return tokens.get(id, parent_tokens)
+        return tokens.get(id,parent_tokens)
