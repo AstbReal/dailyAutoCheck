@@ -6,35 +6,62 @@ import os
 其中USERS_DATA的内容格式为：
 [
     {
-        "id": 0,
-        "name": "an",
-        "cookies": "xxx",
-        "notice_tokens":{
-            "WECOM":{
-                "TYPE":"text or markdown",
-                "SECRET":"xxx",
-                "ENTERPRISE_ID":"xxx",
-                "APP_ID":"xxx"
-            },
-            "WECOM_WEBHOOK":"xxx",
-            "PUSHPLUS_TOKEN":"xxx",
-            "SERVER_SCKEY":"xxx",
-            "BARK_DEVICEKEY":"xxx"
-        }
-    },{...},
-    # 默认使用父系设置，若用户自行有配置可覆盖父系设置。
+        "notice":"notice_1", //此处是选择通知的通道（在下面group_notices配置）,选填。
+        "group":[
+            {
+                "id": 0,
+                "name": "an",
+                "cookies": "xxx",
+            },...,
+            {
+                "id": 10x,
+                "name": "anx",
+                "cookies": "xxx",
+            }
+        ]
+    },...,
     {
-        "parent_notice_tokens":{
-            "WECOM":{
-                "TYPE":"text or markdown",
-                "SECRET":"xxx",
-                "ENTERPRISE_ID":"xxx",
-                "APP_ID":"xxx"
+        "notice":"notice_x",
+        "group":[
+            {
+                "id": 11x,
+                "name": "an",
+                "cookies": "xxx",
+            },...,
+            {
+                "id": 20x,
+                "name": "anx",
+                "cookies": "xxx",
+            }
+        ]
+    },
+    {
+        # 若没有通知需求，可空白。
+        "group_notices": {
+            # 每个组中的通知方式选填，若没有则不通知。
+            # notice_1 可自定义，上面notice字段引用正确即可。
+            "notice_1": {
+                "WECOM":{
+                    "TYPE":"text(markdown)",
+                    "SECRET":"xxx",
+                    "ENTERPRISE_ID":"xxx",
+                    "APP_ID":"xxx"
+                },
+                "WECOM_WEBHOOK":"xxx",
+                "PUSHPLUS_TOKEN":"xxx",
             },
-            "WECOM_WEBHOOK":"xxx",
-            "PUSHPLUS_TOKEN":"xxx",
-            "SERVER_SCKEY":"xxx",
-            "BARK_DEVICEKEY":"xxx"
+            "notice_x": {
+                "WECOM":{
+                    "TYPE":"text(markdown)",
+                    "SECRET":"xxx",
+                    "ENTERPRISE_ID":"xxx",
+                    "APP_ID":"xxx"
+                },
+                "WECOM_WEBHOOK":"xxx",
+                "PUSHPLUS_TOKEN":"xxx",
+                "SERVER_SCKEY":"xxx",
+                "BARK_DEVICEKEY":"xxx"
+            }
         }
     }
 ]
@@ -72,8 +99,8 @@ class Config:
         users = list[dict]()
 
         for data in self.datas:
-            group:list[dict] = data.get("group")
-            token = self.load_group_notices_by_name(data.get("notice"))
+            group: list[dict] = data.get("group")
+            token = self.get_token_by_notice_name(data.get("notice"))
             if group != None:
                 for user in group:
                     user["token"] = token
@@ -81,7 +108,7 @@ class Config:
 
         return users
 
-    def load_group_notices_by_name(self, name):
+    def get_token_by_notice_name(self, name):
         notice = dict()
 
         for data in self.datas:
@@ -91,7 +118,7 @@ class Config:
 
         return notice
 
-    def load_closer(self) -> dict: 
+    def load_closer(self) -> dict:
         dict_close = dict()  # 转化成字典形式
 
         for id in self.closers['pass_ids']:
