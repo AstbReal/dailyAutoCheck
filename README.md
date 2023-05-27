@@ -7,14 +7,12 @@
 
 准备材料：普通邮箱，教育邮箱(领取免费一年)
 
-1. 打开[Glados Github](https://github.com/glados-network/GLaDOS)，找到***Register***，打开链接，填写邮箱进行登录；无法打开的话，修改网络DNS为`8.8.8.8`，然后再访问[Glados官网](https://glados.rocks/)。
-
-2. 新用户刚注册会免费赠送3天，打开右上角`Dashboard`，滑动滚轮一直到最下面，会出现一个`Education Plan`。
+1. 打开[Glados Github](https://github.com/glados-network/GLaDOS)，找到***Register***，打开链接，填写邮箱进行登录；无法打开的话，修改网络DNS为 `8.8.8.8`，然后再访问[Glados官网](https://glados.rocks/)。
+2. 新用户刚注册会免费赠送3天，打开右上角 `Dashboard`，滑动滚轮一直到最下面，会出现一个 `Education Plan`。
 
    ![image-20230217122409349](resource/README/image-20230217122409349.png)
 
    点进去后，输入你的教育邮箱进行验证，验证成功会获赠一年。
-
 3. Windows用户推荐使用Clash客户端进行配置下载。
 
    此处提供官网下载地址：[Clash官网下载](https://github.com/Fndroid/clash_for_windows_pkg)，[Clash汉化版下载](https://github.com/ender-zhao/Clash-for-Windows_Chinese)
@@ -30,21 +28,15 @@
 ## 食用姿势：
 
 1. 先“Fork”本仓库。（不需要修改任何文件！）
-
 2. 注册GLaDOS，方法见上。
-
 3. 登录GLaDOS后获取cookies。（简单获取方法：点击我的账户，浏览器快捷键F12，打开调试窗口，点击“network”获取，刷新页面）
 
    ![image-20230217123549516](resource/README/image-20230217123549516.png)
-
-4. 在自己刚刚Fork过来的仓库里的“Settings”里创建2个“Secrets”，分别是`USERS_DATA` `USERS_CLOSERS(可不填)`（后面有详细介绍），请务必使用**Json压缩后的格式填入**，不然会报错，此处提供 [json在线检查](https://www.sojson.com/)；
+4. 在自己刚刚Fork过来的仓库里的“Settings”里创建2个“Secrets”，分别是 `USERS_DATA` `USERS_CLOSERS(可不填)`（后面有详细介绍），请务必使用**Json压缩后的格式填入**，不然会报错，此处提供 [json在线检查](https://www.sojson.com/)；
 
    ![image-20230217124008233](resource/README/image-20230217124008233.png)
 
    ![image-20230217124047032](resource/README/image-20230217124047032.png)
-
-   
-
 5. **Secrets格式要求：**
 
    - USERS_DATA（**必填**）
@@ -53,95 +45,100 @@
        ````json
        [
            {
-               "id": 0,
-               "name": "an",
-               "cookies": "xxx",
-               "notice_tokens":{
-                   "WECOM":{
-                       "TYPE":"text or markdown",
-                       "SECRET":"xxx",
-                       "ENTERPRISE_ID":"xxx",
-                       "APP_ID":"xxx"
-                   },
-                   "WECOM_WEBHOOK":"xxx",
-                   "PUSHPLUS_TOKEN":"xxx",
-                   "SERVER_SCKEY":"xxx",
-                   "BARK_DEVICEKEY":"xxx"
-               }
-           },{...},
-           # 默认使用父系设置，若用户自行有配置可覆盖父系设置。
+               "notice":"notice_1", //此处是选择通知的通道（在下面group_notices配置），一组只能选一种通知方式,选填。
+               "group":[
+                   {
+                       "id": 0,
+                       "name": "an",
+                       "cookies": "xxx"
+                   },...,
+                   {
+                       "id": 10x,
+                       "name": "anx",
+                       "cookies": "xxx"
+                   }
+               ]
+           },...,
            {
-               "parent_notice_tokens":{
-                   "WECOM":{
-                       "TYPE":"text or markdown",
-                       "SECRET":"xxx",
-                       "ENTERPRISE_ID":"xxx",
-                       "APP_ID":"xxx"
+               "notice":"notice_x",
+               "group":[
+                   {
+                       "id": 11x,
+                       "name": "an",
+                       "cookies": "xxx"
+                   },...,
+                   {
+                       "id": 20x,
+                       "name": "anx",
+                       "cookies": "xxx"
+                   }
+               ]
+           },
+           {
+               # 若没有通知需求，可空白。
+               "group_notices": {
+                   # 每个组中的通知方式选填，若没有则不通知。
+                   # notice_1 可自定义，上面notice字段引用正确即可。
+                   "notice_1": {
+                       "WECOM":{
+                           "TYPE":"text(markdown)",
+                           "SECRET":"xxx",
+                           "ENTERPRISE_ID":"xxx",
+                           "APP_ID":"xxx"
+                       }
                    },
-                   "WECOM_WEBHOOK":"xxx",
-                   "PUSHPLUS_TOKEN":"xxx",
-                   "SERVER_SCKEY":"xxx",
-                   "BARK_DEVICEKEY":"xxx"
+                   "notice_x": {
+                       "WECOM":{
+                           "TYPE":"text(markdown)",
+                           "SECRET":"xxx",
+                           "ENTERPRISE_ID":"xxx",
+                           "APP_ID":"xxx"
+                       },
+                       "WECOM_WEBHOOK":"xxx",
+                       "PUSHPLUS_TOKEN":"xxx",
+                       "SERVER_SCKEY":"xxx",
+                       "BARK_DEVICEKEY":"xxx"
+                   }
                }
            }
        ]
 
-       // 示例1:
+       // 示例
        // 多个账户使用同一通知通道，且只想要微信通知。
        [
            {
-               "id": 0,
-               "name": "aa",
-               "cookies": "xxx"
-           },{
-               "id": 1,
-               "name": "ss",
-               "cookies": "xxx"
-           },
-           {
-               "parent_notice_tokens":{
-                   "WECOM":{
-                       "TYPE":"text",
-                       "SECRET":"xxx",
-                       "ENTERPRISE_ID":"xxx",
-                       "APP_ID":"xxx"
+               "notice":"推送1",
+               "group":[
+                   {
+                       "id": 0,
+                       "name": "an",
+                       "cookies": "xxx"
+                   },
+                   {
+                       "id": 1,
+                       "name": "anx",
+                       "cookies": "xxx"
                    }
-               }
-       }
-       ]
-       // 压缩后的格式
-       [{"id":0,"name":"aa","cookies":"xxx"},{"id":1,"name":"ss","cookies":"xxx"},{"parent_notice_tokens":{"WECOM":{"TYPE":"text","SECRET":"xxx","ENTERPRISE_ID":"xxx","APP_ID":"xxx"}}}]
-       
-       // 示例2
-       // 指定用户使用私有通知通道,如id=0用户使用父微信通知通道，id=1使用自定义私有微信机器人通道。
-       [
-           {
-               "id": 0,
-               "name": "aa",
-               "cookies": "xxx"
-           },{
-               "id": 1,
-               "name": "ss",
-               "cookies": "xxx",
-             	"notice_tokens":{
-                 "WECOM_WEBHOOK":"xxx"
-               }
+               ]
            },
            {
-               "parent_notice_tokens":{
-                   "WECOM":{
-                       "TYPE":"text",
-                       "SECRET":"xxx",
-                       "ENTERPRISE_ID":"xxx",
-                       "APP_ID":"xxx"
+               "group_notices": {
+                   "推送1": {
+                       "WECOM":{
+                           "TYPE":"text(markdown)",
+                           "SECRET":"xxx",
+                           "ENTERPRISE_ID":"xxx",
+                           "APP_ID":"xxx"
+                       },
                    }
                }
            }
        ]
-       // 压缩后
-       [{"id":0,"name":"aa","cookies":"xxx"},{"id":1,"name":"ss","cookies":"xxx","notice_tokens":{"WECOM_WEBHOOK":"xxx"}},{"parent_notice_tokens":{"WECOM":{"TYPE":"text","SECRET":"xxx","ENTERPRISE_ID":"xxx","APP_ID":"xxx"}}}]
+
+       // 压缩后的格式
+       [{"notice":"推送1","group":[{"id":0,"name":"an","cookies":"xxx"},{"id":1,"name":"anx","cookies":"xxx"}]},{"group_notices":{"推送1":{"WECOM":{"TYPE":"text(markdown)","SECRET":"xxx","ENTERPRISE_ID":"xxx","APP_ID":"xxx"},"WECOM_WEBHOOK":"xxx","PUSHPLUS_TOKEN":"xxx"}}}]
        ````
-     - 其中 `notice_tokens`字段介绍：
+     - 其中 `group_notices`下的 `notice_x`字段介绍：
        1. 企业微信自建应用 (WECOM) （选填）
           - TYPE （企业微信自建应用发送文本类型：有以下选择 `text`,`markdown`）(选填，默认 text)
           - SECRET (企业微信的secret)
@@ -151,16 +148,13 @@
        3. WECOM_WEBHOOK (企业微信机器人的API)（选填）
        4. PUSHPLUS_TOKEN（Pushplus）（选填）
        5. BARK_DEVICEKEY （Bark）（选填）
-     
    - USERS_CLOSERS (选填)
 
      1. 可以选择性关闭某一用户的签到, 采用 `json`格式填写:
         `{"pass_ids":[0,1...]}`
         示例（关闭id为2, 3用户的签到）:
         `{"pass_ids":[2,3]}`
-
 6. 以上设置完毕后，每天上午11点会自动触发，并会执行自动main.py, 并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
-
 7. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
 ## 更新：
