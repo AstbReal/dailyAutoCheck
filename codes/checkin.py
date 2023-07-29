@@ -3,7 +3,7 @@ import json
 import sys
 import platform
 import subprocess
-import undetected_chromedriver.v2 as uc
+import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -70,7 +70,7 @@ class Checkin:
         driver = uc.Chrome(version_main=version, options=options)
 
         # Load cookie
-        # driver.get("https://glados.rocks")
+        driver.get("https://glados.rocks")
 
         cookie_dict = [
             {"name": x.split('=')[0].strip(), "value": x[x.find('=')+1:]}
