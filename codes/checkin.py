@@ -38,7 +38,7 @@ class Checkin:
             request.open("POST","%s",false);
             request.setRequestHeader('content-type', 'application/json');
             request.withCredentials=true;
-            request.send('{"token": "glados.network"}');
+            request.send('{"token": "glados.one"}');
             return request;
             })();
             """ % (checkin_url)
