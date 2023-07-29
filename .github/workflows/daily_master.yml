@@ -13,16 +13,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
         with:
           ref: master
-      - name: install-chrome
-        run: |
-          VERSION_STRING="114.0.5735.106"
-          wget "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${VERSION_STRING}_amd64.deb"
-          sudo dpkg -i "google-chrome-stable_${VERSION_STRING}_amd64.deb"
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
