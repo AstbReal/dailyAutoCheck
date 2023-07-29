@@ -17,6 +17,8 @@ class Checkin:
             cmd = r'''google-chrome --version'''
         elif sys == 'Windows':
             cmd = r'''powershell -command "&{(Get-Item  'C:\Program Files\Google\Chrome\Application\chrome.exe').VersionInfo.ProductVersion}"'''
+        elif sys == 'Darwin':
+            cmd = r'''/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version'''
         try:
             out, err = subprocess.Popen(
                 cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -24,7 +26,7 @@ class Checkin:
             print('Check chrome version failed:{}'.format(e))
             return 0
 
-        if sys == 'Linux':
+        if sys == 'Linux' or 'Darwin':
             out = out.decode('utf-8').split(" ")[2].split(".")[0]
         elif sys == 'Windows':
             out = out.decode('utf-8').split(".")[0]
