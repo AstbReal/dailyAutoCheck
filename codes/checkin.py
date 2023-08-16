@@ -6,7 +6,7 @@ import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-CHROMEWEBDRIVER = os.getenv('CHROMEWEBDRIVER','/usr/local/share/chromedriver-mac-x64') + 'chromedriver'
+CHROMEWEBDRIVER = os.getenv('CHROMEWEBDRIVER','/usr/local/share/chromedriver-mac-x64') + '/chromedriver'
 
 class Checkin:
     def get_driver_version(self):
