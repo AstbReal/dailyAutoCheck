@@ -60,11 +60,11 @@ class Checkin:
             """ % (status_url)
         status_query = status_query.replace("\n", "")
         resp = driver.execute_script("return " + status_query)
-        status = json.loads(resp["response"])["data"]
+        status:dict = json.loads(resp["response"])["data"]
 
         #返回值很奇怪，只有0天的时候，返回的是int类型。
-        if status["leftDays"] == 0:
-            status["leftDays"] == "0"
+        if not isinstance(status["leftDays"],str):
+            status["leftDays"] == str(status["leftDays"])
         return status
 
     def auto_check(self, cookie_string):
