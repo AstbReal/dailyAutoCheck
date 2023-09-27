@@ -68,20 +68,26 @@ class MsgSender:
             else:
                 return level[21]  # 默认200G流量上限
 
+        title=""
+        msg_str =""
         if ok:
             # message = [checkin_message,status_message,accountname]
             resp = message[0]
-            status = message[1]
+            status:dict = message[1]
             account = message[2]
+            
+            if status.get("expired",None):
+                title = "Expired"
+                msg_str = f"账号已到期，剩余天数：{status['leftDays']}"
+            else:
+                time = str(status['leftDays']).split('.')[0]
+                use = status['traffic']/1024/1024/1024
+                capacity = limit_capacity(status['vip'])
+                str_rat = '%.2f%%' % (use/capacity*100)
 
-            time = status['leftDays'].split('.')[0]
-            use = status['traffic']/1024/1024/1024
-            capacity = limit_capacity(status['vip'])
-            str_rat = '%.2f%%' % (use/capacity*100)
-
-            title = resp + '余' + time + '天'
-            msg_str = '%s\n\t- 提示:%s;\n\t- 目前剩余%s天;\n\t- 流量已使用:%.3f/%dGB(%s)' % (
-                account, resp, time, use, capacity, str_rat)
+                title = resp + '余' + time + '天'
+                msg_str = '%s\n\t- 提示:%s;\n\t- 目前剩余%s天;\n\t- 流量已使用:%.3f/%dGB(%s)' % (
+                    account, resp, time, use, capacity, str_rat)
 
             self.send_all(self.notice_tokens, title, msg_str)
             print(msg_str)

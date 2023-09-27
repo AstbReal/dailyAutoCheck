@@ -5,9 +5,6 @@ import subprocess
 import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-CHROMEWEBDRIVER = os.getenv('CHROMEWEBDRIVER','/usr/local/share/chromedriver-mac-x64') + '/chromedriver'
-
 class Checkin:
     def get_driver_version(self):
         sys = platform.system()
@@ -74,6 +71,8 @@ class Checkin:
         # version = self.get_driver_version()
         # 由于github action images 自带chrome-driver和google-chrome，故不需要获取版本，直接指定chrome-driver路径即可以
         # driver = uc.Chrome(version_main=version, options=options)
+        CHROMEWEBDRIVER = os.getenv('CHROMEWEBDRIVER','/usr/local/share/chromedriver-mac-x64') + '/chromedriver'
+        # CHROMEWEBDRIVER = os.getenv('CHROMEWEBDRIVER','/usr/local/share/chromedriver-mac-x64')
         driver = uc.Chrome(driver_executable_path=CHROMEWEBDRIVER, options=options)
 
         # Load cookie
