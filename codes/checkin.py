@@ -60,15 +60,19 @@ class Checkin:
             """ % (status_url)
         status_query = status_query.replace("\n", "")
         resp = driver.execute_script("return " + status_query)
-        status = json.loads(resp["response"])
-        return status["data"]
+        status = json.loads(resp["response"])["data"]
+
+        #返回值很奇怪，只有0天的时候，返回的是int类型。
+        if status["leftDays"] == 0:
+            status["leftDays"] == "0"
+        return status
 
     def auto_check(self, cookie_string):
         options = uc.ChromeOptions()
         options.add_argument("--disable-popup-blocking")
 
         # version = self.get_driver_version()
-        # 由于github action images 自带chrome-driver和google-chrome，故不需要获取版本，直接制定chrome-driver路径即可以
+        # 由于github action images 自带chrome-driver和google-chrome，故不需要获取版本，直接指定chrome-driver路径即可以
         # driver = uc.Chrome(version_main=version, options=options)
         driver = uc.Chrome(driver_executable_path=CHROMEWEBDRIVER, options=options)
 
