@@ -78,7 +78,7 @@ class MsgSender:
             
             if status.get("expired",None):
                 title = "Expired"
-                msg_str = f"账号已到期，剩余天数：{status['leftDays']}"
+                msg_str = f"{account}\n\t- 提示：账号已到期;\n\t- 剩余天数：{status['leftDays']};"
             else:
                 time = str(status['leftDays']).split('.')[0]
                 use = status['traffic']/1024/1024/1024
