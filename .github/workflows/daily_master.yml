@@ -25,7 +25,7 @@ jobs:
       - run: pip install -r ./requirements.txt
       - name: Run checkin
         run: |
-          python ./codes/mains.py
+          python ./codes/main.py
         env:
           USERS_DATA: ${{ secrets.USERS_DATA }}
           USERS_CLOSERS: ${{ secrets.USERS_CLOSERS }}
