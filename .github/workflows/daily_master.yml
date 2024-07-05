@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
         with:
@@ -25,8 +25,10 @@ jobs:
       - run: pip install -r ./requirements.txt
       - name: Run checkin
         run: |
-          python ./codes/main.py
+          python ./codes/mains.py
         env:
           USERS_DATA: ${{ secrets.USERS_DATA }}
           USERS_CLOSERS: ${{ secrets.USERS_CLOSERS }}
       - uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          use_api: false
