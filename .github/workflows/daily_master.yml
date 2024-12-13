@@ -29,6 +29,6 @@ jobs:
         env:
           USERS_DATA: ${{ secrets.USERS_DATA }}
           USERS_CLOSERS: ${{ secrets.USERS_CLOSERS }}
-      #- uses: gautamkrishnar/keepalive-workflow@v2
-       # with:
-       #   use_api: false
+      - uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          use_api: false
