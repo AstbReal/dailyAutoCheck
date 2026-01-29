@@ -29,7 +29,7 @@ class Checkin:
         return out
 
     def get_checkin(self, driver):
-        checkin_url = "https://glados.rocks/api/user/checkin"
+        checkin_url = "https://glados.cloud/api/user/checkin"
         checkin_query = """
             (function (){
             var request = new XMLHttpRequest();
@@ -46,7 +46,7 @@ class Checkin:
         return checkin["code"], checkin["message"]
 
     def get_Status(self, driver):
-        status_url = "https://glados.rocks/api/user/status"
+        status_url = "https://glados.cloud/api/user/status"
         status_query = """
             (function (){
             var request = new XMLHttpRequest();
