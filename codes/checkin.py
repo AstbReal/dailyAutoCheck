@@ -36,7 +36,7 @@ class Checkin:
             request.open("POST","%s",false);
             request.setRequestHeader('content-type', 'application/json');
             request.withCredentials=true;
-            request.send('{"token": "glados.one"}');
+            request.send('{"token": "glados.cloud"}');
             return request;
             })();
             """ % (checkin_url)
@@ -76,7 +76,7 @@ class Checkin:
         driver = uc.Chrome(driver_executable_path=CHROMEWEBDRIVER, options=options)
 
         # Load cookie
-        driver.get("https://glados.rocks")
+        driver.get("https://glados.cloud")
 
         cookie_dict = [
             {"name": x.split('=')[0].strip(), "value": x[x.find('=')+1:]}
@@ -87,13 +87,13 @@ class Checkin:
         for cookie in cookie_dict:
             if cookie["name"] in ["koa:sess", "koa:sess.sig", "__stripe_mid", "__cf_bm"]:
                 driver.add_cookie({
-                    "domain": "glados.rocks",
+                    "domain": "glados.cloud",
                     "name": cookie["name"],
                     "value": cookie["value"],
                     "path": "/",
                 })
 
-        driver.get("https://glados.rocks")
+        driver.get("https://glados.cloud")
         WebDriverWait(driver, 240).until(
             lambda x: x.title != "Just a moment..."
         )
