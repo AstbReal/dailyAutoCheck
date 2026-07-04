@@ -29,14 +29,14 @@ class Checkin:
         return out
 
     def get_checkin(self, driver):
-        checkin_url = "https://glados.cloud/api/user/checkin"
+        checkin_url = "https://www.glados.vip/api/user/checkin"
         checkin_query = """
             (function (){
             var request = new XMLHttpRequest();
             request.open("POST","%s",false);
             request.setRequestHeader('content-type', 'application/json');
             request.withCredentials=true;
-            request.send('{"token": "glados.cloud"}');
+            request.send('{"token": "www.glados.vip"}');
             return request;
             })();
             """ % (checkin_url)
@@ -46,7 +46,7 @@ class Checkin:
         return checkin["code"], checkin["message"]
 
     def get_Status(self, driver):
-        status_url = "https://glados.cloud/api/user/status"
+        status_url = "https://www.glados.vip/api/user/status"
         status_query = """
             (function (){
             var request = new XMLHttpRequest();
@@ -76,7 +76,7 @@ class Checkin:
         driver = uc.Chrome(driver_executable_path=CHROMEWEBDRIVER, options=options)
 
         # Load cookie
-        driver.get("https://glados.cloud")
+        driver.get("https://www.glados.vip")
 
         cookie_dict = [
             {"name": x.split('=')[0].strip(), "value": x[x.find('=')+1:]}
@@ -87,13 +87,13 @@ class Checkin:
         for cookie in cookie_dict:
             if cookie["name"] in ["koa:sess", "koa:sess.sig", "__stripe_mid", "__cf_bm"]:
                 driver.add_cookie({
-                    "domain": "glados.cloud",
+                    "domain": "www.glados.vip",
                     "name": cookie["name"],
                     "value": cookie["value"],
                     "path": "/",
                 })
 
-        driver.get("https://glados.cloud")
+        driver.get("https://www.glados.vip")
         WebDriverWait(driver, 240).until(
             lambda x: x.title != "Just a moment..."
         )

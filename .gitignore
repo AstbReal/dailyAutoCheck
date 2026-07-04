@@ -1,0 +1,11 @@
+glados-checkin.code-workspace
+secret*
+__pycache__
+.gitattributes
+*.ipynb
+*test.py
+Test/
+daily_dev_win.yml
+__init__.py
+.idea/
+.env
