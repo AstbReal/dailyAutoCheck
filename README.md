@@ -19,11 +19,26 @@
 
 ## 脚本功能（自动签到）：
 
-1、通过Github Action自动定时运行[main.py](./codes/main.py)脚本。
+1、通过Github Action自动定时运行[glados/main.py](./codes/glados/main.py)脚本。
 
 2、通过cookies自动登录（[https://glados.rocks/console/checkin](https://glados.rocks/console/checkin))，脚本会自动进行checkin。
 
 3、然后通过"[Server酱](https://sct.ftqq.com/)", "Pushplus", "企业微信机器人", "Bark"或者“企业微信自建应用”，自动发送通知。
+
+## 项目结构：
+
+```
+codes/
+├── config.py    # 共用：用户与通知配置加载（从环境变量/Secrets读取）
+├── notice.py    # 共用：通知发送（Server酱/Pushplus/企业微信/Bark）
+├── glados/      # GLaDOS 签到，入口 glados/main.py
+└── workbuddy/   # WorkBuddy 签到，入口 workbuddy/main.py
+.github/workflows/
+├── daily_master.yml       # GLaDOS 签到的 Action
+└── workbuddy_checkin.yml  # WorkBuddy 签到的 Action
+```
+
+两套签到完全独立：各自有独立的 main 入口和 GitHub Action，互不影响；仅共用配置加载（config.py）与通知体系（notice.py）。
 
 ## 食用姿势：
 
@@ -157,8 +172,50 @@
 6. 以上设置完毕后，每天上午11点会自动触发，并会执行自动main.py, 并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
 7. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
+## WorkBuddy（CodeBuddy）每日签到：
+
+1. 通过 Github Action 自动定时运行 [codes/workbuddy/main.py](./codes/workbuddy/main.py)，调用 WorkBuddy 的签到接口领取每日积分。
+2. 通知复用本项目的通知体系（Server酱/Pushplus/企业微信/Bark 等），配置方式与 GLaDOS 相同（见上 `group_notices` 说明）。
+
+### 配置方法：
+
+1. 获取 accessToken：WorkBuddy/CodeBuddy 桌面端登录后，在本地 auth 文件中获取（macOS 路径：`~/Library/Application Support/CodeBuddyExtension/Data/Public/auth/workbuddy-desktop.info`），取其中 `auth.accessToken` 字段的值。
+2. 在仓库 Settings → Secrets 中创建 `WORKBUDDY_DATA`（**必填**，务必使用 **Json压缩后的格式** 填入），格式与 `USERS_DATA` 一致，只是账号字段用 `access_token` 代替 `cookies`：
+
+   ````json
+   [
+       {
+           "notice":"推送1",
+           "group":[
+               {
+                   "id": 0,
+                   "name": "an",
+                   "access_token": "xxx"
+               }
+           ]
+       },
+       {
+           "group_notices": {
+               "推送1": {
+                   "SERVER_SCKEY":"xxx"
+               }
+           }
+       }
+   ]
+   ````
+
+   压缩后的格式示例：
+   `[{"notice":"推送1","group":[{"id":0,"name":"an","access_token":"xxx"}]},{"group_notices":{"推送1":{"SERVER_SCKEY":"xxx"}}}]`
+
+3. `WORKBUDDY_CLOSERS`（选填）：格式同 `USERS_CLOSERS`，如 `{"pass_ids":[0,1]}` 可跳过指定 id 的账号。
+4. 每天 UTC 2:00（北京时间上午10点）自动触发，可在 [workbuddy_checkin.yml](.github/workflows/workbuddy_checkin.yml) 中修改 cron，也可在 Actions 页面手动触发（workflow_dispatch）。
+
 ## 更新：
 
+- [2026-08-29](./README.md)
+
+  - 项目结构整理：按签到目标拆分为 `codes/glados` 与 `codes/workbuddy`，各自独立 main 入口与 GitHub Action，共用 `config.py` 与 `notice.py`
+  - 新增 WorkBuddy（CodeBuddy）每日签到，通知接入现有 `notice.py` 通知体系
 - [2022-5-12](./README.md)
 
   - 修复出现 token error的问题

@@ -1,19 +1,14 @@
-name: daily-master
+name: workbuddy-checkin
 
 on:
   workflow_dispatch:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  # push:
-  #   branches: [master]
-  #pull_request:
-  #  branches: [ main ]
 
-  schedule:
-    - cron: 0 2 * * *
+  #schedule:
+  #  - cron: 0 2 * * *
 
 jobs:
-  build:
-    runs-on: macos-14
+  checkin:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,12 +18,12 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       - run: pip install -r ./requirements.txt
-      - name: Run checkin
+      - name: Run workbuddy checkin
         run: |
-          python -m codes.glados.main
+          python -m codes.workbuddy.main
         env:
-          USERS_DATA: ${{ secrets.USERS_DATA }}
-          USERS_CLOSERS: ${{ secrets.USERS_CLOSERS }}
+          WORKBUDDY_DATA: ${{ secrets.WORKBUDDY_DATA }}
+          WORKBUDDY_CLOSERS: ${{ secrets.WORKBUDDY_CLOSERS }}
   keepalive-job:
     name: Keepalive Workflow
     runs-on: ubuntu-latest

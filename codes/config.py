@@ -3,7 +3,11 @@ import os
 
 """
 这里是配置信息的类，方便解耦合。
-其中USERS_DATA的内容格式为：
+配置从环境变量读取（GitHub Actions 中对应仓库 Secrets），
+各签到脚本通过构造参数指定自己的环境变量名：
+GLaDOS 使用 USERS_DATA / USERS_CLOSERS，WorkBuddy 使用 WORKBUDDY_DATA / WORKBUDDY_CLOSERS。
+
+其中用户数据（如USERS_DATA）的内容格式为：
 [
     {
         "notice":"notice_1", //此处是选择通知的通道（在下面group_notices配置）,选填。
@@ -11,7 +15,8 @@ import os
             {
                 "id": 0,
                 "name": "an",
-                "cookies": "xxx",
+                "cookies": "xxx",      // glados签到使用
+                "access_token": "xxx", // workbuddy签到使用
             },...,
             {
                 "id": 10x,
@@ -66,7 +71,7 @@ import os
     }
 ]
 
-USERS_CLOSERS为想关闭的用户，避免重复填写USERS_DATA，其格式如下:
+USERS_CLOSERS（WorkBuddy为WORKBUDDY_CLOSERS）为想关闭的用户，避免重复填写用户数据，其格式如下:
 {
     "pass_ids":[0,1...]
 }
@@ -75,12 +80,12 @@ USERS_CLOSERS为想关闭的用户，避免重复填写USERS_DATA，其格式如
 
 class Config:
 
-    def __init__(self) -> None:
+    def __init__(self, users_env: str = 'USERS_DATA', closers_env: str = 'USERS_CLOSERS') -> None:
         # 用户数据列表
-        self.datas_str = os.getenv('USERS_DATA', '[]')
+        self.datas_str = os.getenv(users_env, '[]')
 
         # 关闭用户名单
-        self.closers_str = os.getenv('USERS_CLOSERS', '{"pass_ids":[]}')
+        self.closers_str = os.getenv(closers_env, '{"pass_ids":[]}')
 
         # print(f'CLOSERS:{self.closers_str}and type{type(self.closers_str)}')
 

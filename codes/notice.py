@@ -96,6 +96,10 @@ class MsgSender:
             title = 'Checkin failed:'
             self.send_all(self.notice_tokens, title, message)
 
+    def send(self, title, content):
+        """通用通知入口：向所有已配置且有效的通道发送消息，供各签到脚本使用。"""
+        self.send_all(self.notice_tokens, title, content)
+
     def send_all(self, tokens: dict, title, content):
         def check_token_valid(token):
             if isinstance(token, type(None)):
