@@ -9,3 +9,6 @@ daily_dev_win.yml
 __init__.py
 .idea/
 .env
+.workbuddy/
+workbuddy_data.txt
+workbuddy_data.json

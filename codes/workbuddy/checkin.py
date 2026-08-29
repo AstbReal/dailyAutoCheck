@@ -23,11 +23,18 @@ class WorkBuddyCheckin:
             "User-Agent": "WorkBuddy-Checkin/1.0",
         }
         try:
-            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
-            if resp.status_code != 200:
+            # 该接口仅支持 POST（GET 会返回 404）
+            resp = requests.post(url, headers=headers, timeout=REQUEST_TIMEOUT)
+            # daily-checkin 在"今日已签到"时会返回 HTTP 400 + code=10001，
+            # 因此 400 时仍需解析响应体，由上层根据 code 判断
+            if resp.status_code not in (200, 400):
                 print(f"   HTTP {resp.status_code}: {resp.reason}")
                 return None
-            return resp.json()
+            try:
+                return resp.json()
+            except ValueError:
+                print(f"   HTTP {resp.status_code}: 响应非JSON: {resp.text[:200]}")
+                return None
         except Exception as e:
             print(f"   请求失败: {e}")
             return None
@@ -52,17 +59,28 @@ class WorkBuddyCheckin:
                 f"账号: {account_name}\n查询签到状态失败，请检查 accessToken 是否过期\n时间: {now}"
             )
 
-        if status_data.get("today_checked_in", False):
+        # 响应结构: {"code":0, "data":{...}}；today_checked_in 字段可能不可靠，
+        # 实际以 daily-checkin 的 code=10001（今日已签到）为准
+        status = status_data.get("data", {}) if isinstance(status_data, dict) else {}
+
+        if status.get("today_checked_in", False):
             print("   今日已签到，无需重复领取。")
             return True, "✅ WorkBuddy 今日已签到", f"账号: {account_name}\n今日已签到，无需重复领取\n时间: {now}"
 
         print("   领取签到积分...")
         result = self.claim_daily_checkin(token)
-        if result:
-            points = result.get("points", result.get("reward_points", ""))
-            print(f"   签到成功，获得积分: {points}")
-            return True, "✅ WorkBuddy 签到成功", f"账号: {account_name}\n获得积分: +{points}\n时间: {now}"
+        if result and result.get("code") == 10001:
+            print("   今日已签到（接口返回10001）。")
+            return True, "✅ WorkBuddy 今日已签到", f"账号: {account_name}\n今日已签到，无需重复领取\n时间: {now}"
+
+        if result and result.get("code") == 0:
+            data = result.get("data", {}) or {}
+            points = data.get("credit", data.get("daily_credit", data.get("points", "")))
+            streak = data.get("streak_days", "")
+            print(f"   签到成功，获得积分: {points}，连续签到: {streak} 天")
+            streak_msg = f"\n连续签到: {streak} 天\n时间: {now}" if streak != "" else f"\n时间: {now}"
+            return True, "✅ WorkBuddy 签到成功", f"账号: {account_name}\n获得积分: +{points}{streak_msg}"
 
         return False, "❌ WorkBuddy 签到失败", (
-            f"账号: {account_name}\n领取签到积分失败，请检查 accessToken 是否过期\n时间: {now}"
+            f"账号: {account_name}\n领取签到积分失败: {result}\n时间: {now}"
         )

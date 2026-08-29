@@ -180,6 +180,13 @@ codes/
 ### 配置方法：
 
 1. 获取 accessToken：WorkBuddy/CodeBuddy 桌面端登录后，在本地 auth 文件中获取（macOS 路径：`~/Library/Application Support/CodeBuddyExtension/Data/Public/auth/workbuddy-desktop.info`），取其中 `auth.accessToken` 字段的值。
+
+   > 也可以直接用脚本自动提取（Windows / macOS / Linux 通用）：
+   > ```bash
+   > python -m codes.workbuddy.gen_data            # 生成到 workbuddy_data.txt
+   > python -m codes.workbuddy.gen_data --print    # 只打印，不写文件
+   > ```
+   > 脚本会自动定位本机登录态、提取 accessToken 并输出压缩 JSON；若输出文件已存在，会复用其中的 `group_notices` 通知配置，只刷新 token。
 2. 在仓库 Settings → Secrets 中创建 `WORKBUDDY_DATA`（**必填**，务必使用 **Json压缩后的格式** 填入），格式与 `USERS_DATA` 一致，只是账号字段用 `access_token` 代替 `cookies`：
 
    ````json
