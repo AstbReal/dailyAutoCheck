@@ -12,3 +12,4 @@ __init__.py
 .workbuddy/
 workbuddy_data.txt
 workbuddy_data.json
+workbuddy_user.txt

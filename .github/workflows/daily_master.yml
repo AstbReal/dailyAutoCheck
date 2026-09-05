@@ -26,9 +26,7 @@ jobs:
       - name: Run checkin
         run: |
           python -m codes.glados.main
-        env:
-          USERS_DATA: ${{ secrets.USERS_DATA }}
-          USERS_CLOSERS: ${{ secrets.USERS_CLOSERS }}
+        env: ${{ toJSON(secrets) }}
   keepalive-job:
     name: Keepalive Workflow
     runs-on: ubuntu-latest

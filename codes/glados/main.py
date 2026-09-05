@@ -6,27 +6,29 @@ from codes.config import Config
 # 若需要通知功能，请看notice.py代码.
 SUCCESS = True
 FAIL = False
-NO_PASS = False
 
-config = Config()
+USER_PREFIX = 'GLADOS_USER_'
+NOTICES_ENV = 'NOTICES'
+
+
+def load_config() -> Config:
+    return Config(user_prefix=USER_PREFIX, notices_env=NOTICES_ENV)
 
 
 def run_check():
     auto_checker = Checkin()
+    config = load_config()
     users = config.load_users()
-    dict_close = config.load_closer()
+
+    if not users:
+        print(f"未检测到任何 {USER_PREFIX}* 环境变量，请检查 Secrets 配置")
+        return False
 
     for user in users:
         # 加载通知模块配置
         msg_sender = MsgSender(user.get("token"))
 
-        # 跳过指定用户的打卡程序
-        if dict_close.get(user["id"], NO_PASS):
-            print(f"已成功跳过用户{user['name']}的打卡步骤")
-            # message_notice(msg, success)
-            continue
-
-        # 签到未跳过用户
+        # 签到
         print(f"第{user['id']}个账号正在签到...")
         resp_code, message = auto_checker.auto_check(user['cookies'])
 
@@ -38,6 +40,8 @@ def run_check():
             message.append(info)
             msg_sender.message_notice(message, SUCCESS)  # 发送成功消息给推送，并打印到终端。
         print(info)
+
+    return True
 
 
 if __name__ == "__main__":

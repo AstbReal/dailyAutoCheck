@@ -3,8 +3,8 @@ name: workbuddy-checkin
 on:
   workflow_dispatch:
 
-  schedule:
-    - cron: 0 2 * * *
+  #schedule:
+  #  - cron: 0 2 * * *
 
 jobs:
   checkin:
@@ -21,9 +21,7 @@ jobs:
       - name: Run workbuddy checkin
         run: |
           python -m codes.workbuddy.main
-        env:
-          WORKBUDDY_DATA: ${{ secrets.WORKBUDDY_DATA }}
-          WORKBUDDY_CLOSERS: ${{ secrets.WORKBUDDY_CLOSERS }}
+        env: ${{ toJSON(secrets) }}
   keepalive-job:
     name: Keepalive Workflow
     runs-on: ubuntu-latest
