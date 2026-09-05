@@ -18,10 +18,23 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       - run: pip install -r ./requirements.txt
-      - name: Run workbuddy checkin
+
+      # 把所有 Secret 注入到后续步骤的环境变量里（脚本按 WORKBUDDY_USER_*/NOTICES 前缀自动扫描）
+      - name: Inject secrets into environment
+        env:
+          SECRETS_JSON: ${{ toJSON(secrets) }}
         run: |
-          python -m codes.workbuddy.main
-        env: ${{ toJSON(secrets) }}
+          python <<'PY'
+          import json, os
+          delim = "GH_" + os.urandom(8).hex()
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
+              for k, v in json.loads(os.environ["SECRETS_JSON"]).items():
+                  f.write(f"{k}<<{delim}\n{v}\n{delim}\n")
+          PY
+
+      - name: Run workbuddy checkin
+        run: python -m codes.workbuddy.main
+
   keepalive-job:
     name: Keepalive Workflow
     runs-on: ubuntu-latest

@@ -40,11 +40,13 @@ codes/
 
 两套签到完全独立：各自有独立的 main 入口和 GitHub Action，互不影响；共用配置加载（config.py）、通知体系（notice.py）和共享通知变量 `NOTICES`。
 
+> Actions 会先用一步把所有 Secret 写入 `GITHUB_ENV`，脚本再通过 `os.environ` 按前缀自动扫描。这样新增账号只需在 Secrets 里加一个变量，不用改 workflow。
+
 ## Secrets 配置（前缀变量模式）
 
 每个账号一个环境变量（Secret），变量名以 `GLADOS_USER_` / `WORKBUDDY_USER_` 为前缀，
 后缀是账号标识，例如 `GLADOS_USER_SULIVIA`、`WORKBUDDY_USER_ANDY`。
-所有 Action 都通过 `env: ${{ toJSON(secrets) }}` 拿到全部 Secrets，脚本自动按前缀扫描。
+脚本通过 `os.environ` 按前缀自动扫描，新增账号只需在 Secrets 加一个变量。
 
 > 旧的单变量 `USERS_DATA` / `USERS_CLOSERS` / `WORKBUDDY_DATA` / `WORKBUDDY_CLOSERS` 已废弃，
 > 请从仓库 Secrets 中删除，换成下面的新格式。
