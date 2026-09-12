@@ -3,20 +3,6 @@
 1. **教育邮箱已经出现签到不给天数的问题，建议开一个Basic或者Pro套餐（新用户优惠套餐），其中Pro套餐可以分享出30天的Basic码（理论3个），也就是说可以4个人合作开1个Pro套餐和3个Basic套餐只花一份Pro套餐的钱。**
 2. **提醒：actions 有可能被封禁，请自己保存好代码。**
 
-## 注册地址以及步骤：
-
-准备材料：普通邮箱，教育邮箱(领取免费一年)
-
-1. 打开[Glados Github](https://github.com/glados-network/GLaDOS)，找到***Register***，打开链接，填写邮箱进行登录；无法打开的话，修改网络DNS为 `8.8.8.8`，然后再访问[Glados官网](https://glados.rocks/)。
-2. 新用户刚注册会免费赠送3天，打开右上角 `Dashboard`，滑动滚轮一直到最下面，会出现一个 `Education Plan`。
-
-   ![image-20230217122409349](resource/README/image-20230217122409349.png)
-
-   点进去后，输入你的教育邮箱进行验证，验证成功会获赠一年。
-3. Windows用户推荐使用Clash客户端进行配置下载。
-
-   此处提供官网下载地址：[Clash官网下载](https://github.com/Fndroid/clash_for_windows_pkg)，[Clash汉化版下载](https://github.com/ender-zhao/Clash-for-Windows_Chinese)
-
 ## 脚本功能（自动签到）：
 
 1、通过Github Action自动定时运行[glados/main.py](./codes/glados/main.py)脚本。
@@ -97,15 +83,14 @@ WorkBuddy 账号（用 `access_token`）：
 ## 食用姿势（GLaDOS）：
 
 1. 先“Fork”本仓库。（不需要修改任何文件！）
-2. 注册GLaDOS，方法见上。
-3. 登录GLaDOS后获取cookies。（简单获取方法：点击我的账户，浏览器快捷键F12，打开调试窗口，点击“network”获取，刷新页面）
+2. 登录GLaDOS后获取cookies。（简单获取方法：点击我的账户，浏览器快捷键F12，打开调试窗口，点击“network”获取，刷新页面）
 
    ![image-20230217123549516](resource/README/image-20230217123549516.png)
-4. 在自己刚刚Fork过来的仓库里的“Settings → Secrets and variables → Actions”里创建 Secrets：
+3. 在自己刚刚Fork过来的仓库里的“Settings → Secrets and variables → Actions”里创建 Secrets：
    - `NOTICES`（选填）：共享通知配置，见上
-   - `GLADOS_USER_SULIVIA`（**必填**，每账号一个）：JSON 压缩格式填入，此处提供 [json在线检查](https://www.sojson.com/)
-5. 以上设置完毕后，每天上午10点会自动触发，并会执行自动签到，并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
-6. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
+   - `GLADOS_USER_SULIVIA`（**必填**，每账号一个）：JSON 格式填入（支持换行/缩进，**无需压缩**），此处提供 [json在线检查](https://www.sojson.com/)
+4. 以上设置完毕后，每天上午10点会自动触发，并会执行自动签到，并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
+5. **如果以上都不会的话，注册GLaDOS后，每天勤奋点记得登录后手动进行checkin即可。**
 
 ## WorkBuddy（CodeBuddy）每日签到：
 
@@ -135,12 +120,17 @@ WorkBuddy 账号（用 `access_token`）：
 
 ## 更新：
 
+- [2026-09-12](./README.md)
+
+  - 移除「注册地址以及步骤」章节，README 专注部署与配置说明
+  - 明确 Secrets 里的 JSON **无需压缩**（支持换行/缩进）
+  - 修正更新日志中已过时的 Actions 注入方式描述
 - [2026-09-05](./README.md)
 
   - Secrets 改为前缀变量模式：每个账号一个 `GLADOS_USER_XXX` / `WORKBUDDY_USER_XXX` 变量，新增账号只需加一个 Secret
   - 通知配置统一：`GLADOS_NOTICES` / `WORKBUDDY_NOTICES` 合并为共享的 `NOTICES`，账号 notice 支持字符串引用共享渠道
-  - 移除 closers（`USERS_CLOSERS` / `WORKBuddy_CLOSERS`）相关逻辑，跳过账号改为直接删除对应 Secret
-  - Actions 改为 `env: ${{ toJSON(secrets) }}` 整体注入，脚本按前缀自动扫描
+  - 移除 closers（`USERS_CLOSERS` / `WORKBUDDY_CLOSERS`）相关逻辑，跳过账号改为直接删除对应 Secret
+  - Actions 改为预步骤把 Secret 注入 `GITHUB_ENV`，脚本按前缀自动扫描
   - gen_data.py 改为输出 `WORKBUDDY_USER_XXX=JSON` 格式，便于直接粘贴到 Secrets
 - [2026-08-29](./README.md)
 
