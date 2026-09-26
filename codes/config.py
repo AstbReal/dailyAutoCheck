@@ -14,6 +14,9 @@ import os
 
 - name：选填，展示名，不填则用变量名后缀
 - cookies / access_token：必填，账号凭据（GLaDOS 用 cookies，WorkBuddy 用 access_token）
+- auto_exchange：选填，仅 GLaDOS 使用。是否在签到后自动用最高积分套餐兑换，
+  默认 false（不写即关闭）。签到后查询 /api/user/points，若当前积分 >= plans 中
+  最大 points，则自动兑换该套餐。支持 true/false，也兼容 "true"/"1"/"yes" 等字符串。
 - notice：选填，该账号的通知渠道，三种写法：
     1. {"name":"企业微信","data":{...}}      单通道（推荐）
     2. {"WECOM":{...},"SERVER_SCKEY":"..."}  完整写法（可多通道）
@@ -44,6 +47,23 @@ NOTICE_CHANNELS = {
 
 # MsgSender 认识的配置键
 NOTICE_KEYS = ("WECOM", "WECOM_WEBHOOK", "SERVER_SCKEY", "PUSHPLUS_TOKEN", "BARK_DEVICEKEY")
+
+
+def to_bool(value, default: bool = False) -> bool:
+    """把配置里的开关值统一成 bool（兼容 true/"true"/"1"/"yes"/"on" 等写法）。"""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in ("true", "1", "yes", "y", "on", "是", "开"):
+            return True
+        if text in ("false", "0", "no", "n", "off", "否", "关", ""):
+            return False
+    return default
 
 
 def build_notice_config(notice, shared: dict | None = None) -> dict:
@@ -91,6 +111,7 @@ def load_users_from_env_prefix(prefix: str, notices: dict | None = None) -> list
 
     - 用户名默认取前缀之后的部分（SULIVIA），变量里的 name 字段可覆盖展示名
     - notice 支持完整写法 / 单通道写法 / 引用共享配置三种形式
+    - auto_exchange 为 GLaDOS 专用的自动兑换开关，默认 False
     - 变量值也可以是纯字符串（直接粘 token），表示只签到、不发通知
     """
     users: list[dict] = list()
@@ -126,6 +147,7 @@ def load_users_from_env_prefix(prefix: str, notices: dict | None = None) -> list
             "name": data.get("name") or suffix,     # 展示名，默认用变量名后缀
             "access_token": token,
             "cookies": token,
+            "auto_exchange": to_bool(data.get("auto_exchange")),  # 自动兑换开关（GLaDOS）
             "token": build_notice_config(data.get("notice"), notices),
         })
 

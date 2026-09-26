@@ -71,10 +71,12 @@ class MsgSender:
         title=""
         msg_str =""
         if ok:
-            # message = [checkin_message,status_message,accountname]
+            # message = [checkin_message, status_message, (额外信息，可选), accountname]
+            # 账号名固定放最后；中间多出来的元素（如自动兑换结果）作为附加行
             resp = message[0]
             status:dict = message[1]
-            account = message[2]
+            account = message[-1]
+            extras = [str(x) for x in message[2:-1] if x]
             
             if status.get("expired",None):
                 title = "Expired"
@@ -88,6 +90,9 @@ class MsgSender:
                 title = resp + '余' + time + '天'
                 msg_str = '%s\n\t- 提示:%s;\n\t- 目前剩余%s天;\n\t- 流量已使用:%.3f/%dGB(%s)' % (
                     account, resp, time, use, capacity, str_rat)
+
+            if extras:
+                msg_str = msg_str + "\n" + "\n".join(extras)
 
             self.send_all(self.notice_tokens, title, msg_str)
             print(msg_str)

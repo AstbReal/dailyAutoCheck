@@ -53,7 +53,7 @@ codes/
 GLaDOS 账号（用 `cookies`）：
 
 ```json
-{"name": "Sulivia", "cookies": "koa:sess=xxx; koa:sess.sig=xxx", "notice": "企业微信"}
+{"name": "Sulivia", "cookies": "koa:sess=xxx; koa:sess.sig=xxx", "notice": "企业微信", "auto_exchange": false}
 ```
 
 WorkBuddy 账号（用 `access_token`）：
@@ -66,6 +66,7 @@ WorkBuddy 账号（用 `access_token`）：
 
 - `name`：选填，展示名，不填则用变量名后缀（如 `SULIVIA`）
 - `cookies` / `access_token`：必填，账号凭据
+- `auto_exchange`：选填，**仅 GLaDOS 使用**，是否在签到后自动兑换积分，默认 `false`（不写即关闭），见下方[自动兑换最高档套餐](#自动兑换最高档套餐)
 - `notice`：选填，该账号的通知渠道，三种写法：
   1. `"企业微信"` —— 字符串，引用 `NOTICES` 里的同名条目（**推荐**）
   2. `{"name": "企业微信", "data": {...}}` —— 单通道写法
@@ -79,6 +80,30 @@ WorkBuddy 账号（用 `access_token`）：
   - `BARK_DEVICEKEY`（Bark）
 - 变量值也可以是纯字符串（直接粘 token），表示只签到、不发通知
 - 跳过某个账号：直接从仓库 Secrets 删掉对应变量即可
+
+### 自动兑换最高档套餐
+
+在 GLaDOS 账号 JSON 里加上 `"auto_exchange": true` 即可开启（默认关闭）。
+开启后，每次签到成功会多走一步：
+
+1. 查询 `GET /api/user/points`，拿到当前 `points` 与所有 `plans`；
+2. 从 `plans`（`plan100` / `plan200` / `plan500`）中挑出所需积分**最高**的那档；
+3. 若当前积分 ≥ 该档所需积分，则自动兑换。
+
+行为说明：
+
+- 积分不足时只打印日志、不发送通知，不会有额外打扰；
+- 兑换成功 / 失败会作为一行附加信息，出现在原有的签到通知里；
+- 积分查询异常不会中断签到，只在通知里提示「已跳过」。
+
+```json
+{"name": "Sulivia", "cookies": "koa:sess=xxx", "notice": "企业微信", "auto_exchange": true}
+```
+
+> ⚠️ 兑换接口尚未接入：`codes/glados/checkin.py` 中的 `Checkin.EXCHANGE_URL` 目前是空字符串，
+> 此时即使开关打开也不会发出任何兑换请求，仅提示「接口尚未接入」。
+> 拿到真实接口后，只需填 `EXCHANGE_URL` 并按文档调整 `build_exchange_request()` 里的
+> 请求方法和 body 字段，其余流程无需改动。
 
 ## 食用姿势（GLaDOS）：
 
@@ -120,6 +145,11 @@ WorkBuddy 账号（用 `access_token`）：
 
 ## 更新：
 
+- [2026-09-25](./README.md)
+
+  - GLaDOS 账号配置新增 `auto_exchange` 开关（默认 `false`）：签到后查询积分，满足最高档套餐即自动兑换
+  - 兑换结果作为附加行并入原有签到通知；积分查询异常不中断签到
+  - 兑换接口地址待补充（`Checkin.EXCHANGE_URL` 为空时不发请求）
 - [2026-09-12](./README.md)
 
   - 移除「注册地址以及步骤」章节，README 专注部署与配置说明
