@@ -3,12 +3,17 @@ from codes.notice import MsgSender
 from codes.glados.checkin import Checkin
 from codes.config import Config
 
-# 若需要通知功能，请看notice.py代码.
 SUCCESS = True
 FAIL = False
 
 USER_PREFIX = 'GLADOS_USER_'
 NOTICES_ENV = 'NOTICES'
+
+FAIL_HINTS = {
+    Checkin.CODE_COOKIE_INVALID: "cookie 可能已失效，请重新获取",
+    Checkin.CODE_AUTOMATED: "被 GLaDOS 判定为自动化请求",
+    Checkin.CODE_REQUEST_ERROR: "请求异常，请查看日志",
+}
 
 
 def load_config() -> Config:
@@ -25,20 +30,22 @@ def run_check():
         return False
 
     for user in users:
-        # 加载通知模块配置
         msg_sender = MsgSender(user.get("token"))
 
-        # 签到
         print(f"第{user['id']}个账号正在签到...")
-        resp_code, message = auto_checker.auto_check(user['cookies'])
+        resp_code, message = auto_checker.auto_check(
+            user['cookies'], auto_exchange=user.get('auto_exchange', False))
 
-        if resp_code == -2:
-            info = f"用户{user['name']}cookie出现错误!请检查。"
-            msg_sender.message_notice(info, FAIL)  # 发送失败消息给推送。
-        else:
+        if resp_code in Checkin.SUCCESS_CODES:
             info = f"[{user['name']}签到...]"
             message.append(info)
-            msg_sender.message_notice(message, SUCCESS)  # 发送成功消息给推送，并打印到终端。
+            msg_sender.message_notice(message, SUCCESS)
+        else:
+            reason = message[-1] if message else "未知原因"
+            hint = FAIL_HINTS.get(resp_code)
+            detail = f"{reason}（{hint}）" if hint else str(reason)
+            info = f"用户{user['name']}签到失败：{detail}"
+            msg_sender.message_notice(info, FAIL)
         print(info)
 
     return True
