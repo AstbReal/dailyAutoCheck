@@ -1,9 +1,65 @@
 # encoding=utf8
 import json
 import os
+import time
 
-import undetected_chromedriver as uc
-from selenium.webdriver.support.ui import WebDriverWait
+PANEL_BROWSERS_PATH = "/app/Dumb-Panel/deps/ms-playwright"
+DEFAULT_BROWSERS_PATH = os.path.expanduser("~/.cache/ms-playwright")
+
+
+def resolve_browsers_path() -> str:
+    """定位 playwright 浏览器目录：环境变量 > 面板自带 > 默认缓存目录。"""
+    candidates = (
+        os.getenv("PLAYWRIGHT_BROWSERS_PATH"),
+        PANEL_BROWSERS_PATH,
+        DEFAULT_BROWSERS_PATH,
+    )
+    for path in candidates:
+        if path and os.path.isdir(path):
+            return path
+    return ""
+
+
+class BrowserSession:
+    """基于 playwright + chromium 的浏览器会话。"""
+
+    def __init__(self, checkin, cookie_string):
+        from playwright.sync_api import sync_playwright
+
+        self.checkin = checkin
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch(
+            headless=True, args=list(checkin.LAUNCH_ARGS))
+
+        self.context = self.browser.new_context(
+            user_agent=checkin.resolve_user_agent(self.browser),
+            locale=checkin.LOCALE,
+            timezone_id=checkin.TIMEZONE_ID,
+            viewport=checkin.VIEWPORT,
+        )
+        self.context.add_init_script(checkin.STEALTH_JS)
+
+        cookies = checkin.build_cookies(cookie_string)
+        if cookies:
+            self.context.add_cookies(cookies)
+
+        self.page = self.context.new_page()
+        # GLaDOS 是 SPA，部分子资源会长期挂起导致 DOMContentLoaded 永不触发，
+        # 因此只等到导航提交，不等 document 加载完成。
+        self.page.goto(
+            checkin.BASE_URL, timeout=checkin.NAV_TIMEOUT, wait_until="commit")
+        checkin.wait_challenge_cleared(self.page)
+        self.page.wait_for_timeout(checkin.SETTLE_MS)
+
+    def fetch(self, url, init):
+        return self.page.evaluate(self.checkin.FETCH_JS, [url, init])
+
+    def close(self):
+        for step in (self.browser.close, self.playwright.stop):
+            try:
+                step()
+            except Exception:
+                pass
 
 
 class Checkin:
@@ -21,28 +77,67 @@ class Checkin:
     CODE_REQUEST_ERROR = -1
 
     CHALLENGE_TIMEOUT = 240
+    NAV_TIMEOUT = 30000
+    SETTLE_MS = 3000
+    LOCALE = "zh-CN"
+    TIMEZONE_ID = "Asia/Shanghai"
+    VIEWPORT = {"width": 1440, "height": 900}
 
-    EXCHANGE_URL = ""
+    LAUNCH_ARGS = (
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-blink-features=AutomationControlled",
+    )
+
+    CHALLENGE_MARKERS = ("Just a moment", "cf-chl", "challenges.cloudflare.com")
+
+    # GLaDOS 的反爬会直接拒掉两类 UA（返回 code=4 Automated check-in detected）：
+    #   1) playwright 默认的 HeadlessChrome/...    2) 任何 Linux 平台 UA
+    # 因此统一伪装成 Windows 桌面版 Chrome，版本号沿用浏览器真实主版本。
+    UA_TEMPLATE = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/{version} Safari/537.36")
+
+    STEALTH_JS = """
+    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+    Object.defineProperty(navigator, 'platform', {get: () => 'Win32'});
+    Object.defineProperty(navigator, 'languages', {get: () => ['zh-CN', 'zh', 'en']});
+    window.chrome = {runtime: {}};
+    """
 
     FETCH_JS = """
-    const [url, init, done] = arguments;
-    (async () => {
+    async ([url, init]) => {
       let resp;
       try {
         resp = await fetch(url, init);
       } catch (err) {
-        return done({ok: false, error: "网络请求失败：" + err});
+        return {ok: false, error: "网络请求失败：" + err};
       }
       const text = await resp.text();
       try {
-        done({ok: true, data: JSON.parse(text)});
+        return {ok: true, data: JSON.parse(text)};
       } catch (err) {
-        done({ok: false, error: `HTTP ${resp.status}，响应不是 JSON：${text.slice(0, 120)}`});
+        return {ok: false, error: `HTTP ${resp.status}，响应不是 JSON：${text.slice(0, 120)}`};
       }
-    })();
+    }
     """
 
-    def request_json(self, driver, url, method="GET", body=None, accept=None):
+    EXCHANGE_URL = ""
+
+    @classmethod
+    def resolve_user_agent(cls, browser):
+        major = (browser.version or "").split(".")[0] or "153"
+        return cls.UA_TEMPLATE.format(version=f"{major}.0.0.0")
+
+    def open_session(self, cookie_string):
+        browsers_path = resolve_browsers_path()
+        if not browsers_path:
+            raise RuntimeError(
+                "未找到 playwright 浏览器目录，请先执行：pip install playwright "
+                "&& playwright install chromium")
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = browsers_path
+        return BrowserSession(self, cookie_string)
+
+    def request_json(self, session, url, method="GET", body=None, accept=None):
         init = {
             "method": method,
             "credentials": "include",
@@ -53,63 +148,57 @@ class Checkin:
             init.setdefault("headers", {})["content-type"] = "application/json"
             init["body"] = body if isinstance(body, str) else json.dumps(body)
 
-        result = driver.execute_async_script(self.FETCH_JS, url, init)
+        result = session.fetch(url, init)
         if not result.get("ok"):
             raise RuntimeError(f"请求 {url} 失败：{result.get('error')}")
         return result["data"]
 
-    def get_checkin(self, driver):
+    def get_checkin(self, session):
         data = self.request_json(
-            driver, self.CHECKIN_URL,
+            session, self.CHECKIN_URL,
             method="POST", body={"token": self.CHECKIN_TOKEN})
         return data.get("code"), data.get("message", "")
 
-    def get_status(self, driver):
-        status: dict = self.request_json(driver, self.STATUS_URL)["data"]
+    def get_status(self, session):
+        status: dict = self.request_json(session, self.STATUS_URL)["data"]
 
         if not isinstance(status["leftDays"], str):
             status["leftDays"] = str(status["leftDays"])
         return status
 
-    def get_points(self, driver):
-        return self.request_json(driver, self.POINTS_URL)
+    def get_points(self, session):
+        return self.request_json(session, self.POINTS_URL)
 
-    def build_driver(self):
-        options = uc.ChromeOptions()
-        options.add_argument("--disable-popup-blocking")
-
-        driver_dir = os.getenv("CHROMEWEBDRIVER")
-        if driver_dir:
-            exe_name = "chromedriver.exe" if os.name == "nt" else "chromedriver"
-            driver_path = os.path.join(driver_dir, exe_name)
-            return uc.Chrome(driver_executable_path=driver_path, options=options)
-
-        return uc.Chrome(options=options)
-
-    @staticmethod
-    def parse_cookies(cookie_string):
-        cookies = []
+    @classmethod
+    def build_cookies(cls, cookie_string):
+        cookies = list()
         for item in (cookie_string or "").split(";"):
             name, sep, value = item.partition("=")
             if not sep:
                 continue
             name, value = name.strip(), value.strip()
             if name:
-                cookies.append({"name": name, "value": value})
-        return cookies
-
-    def load_cookies(self, driver, cookie_string):
-        driver.delete_all_cookies()
-        for cookie in self.parse_cookies(cookie_string):
-            try:
-                driver.add_cookie({
-                    "domain": self.COOKIE_DOMAIN,
-                    "name": cookie["name"],
-                    "value": cookie["value"],
+                cookies.append({
+                    "domain": cls.COOKIE_DOMAIN,
+                    "name": name,
+                    "value": value,
                     "path": "/",
                 })
-            except Exception as e:
-                print(f"跳过无法写入的 cookie {cookie['name']}：{e}")
+        return cookies
+
+    def wait_challenge_cleared(self, page):
+        deadline = time.time() + self.CHALLENGE_TIMEOUT
+        while True:
+            try:
+                html = page.content()
+            except Exception:
+                html = ""
+            if not any(marker in html for marker in self.CHALLENGE_MARKERS):
+                return True
+            if time.time() >= deadline:
+                print("等待 Cloudflare 校验超时，继续尝试请求")
+                return False
+            time.sleep(2)
 
     @staticmethod
     def get_best_plan(points_data):
@@ -131,17 +220,17 @@ class Checkin:
     def build_exchange_request(self, plan_name, plan_info):
         return "POST", self.EXCHANGE_URL, json.dumps({"plan": plan_name})
 
-    def exchange_points(self, driver, plan_name, plan_info):
+    def exchange_points(self, session, plan_name, plan_info):
         if not self.EXCHANGE_URL:
             return None, "自动兑换接口尚未接入，本次跳过兑换"
 
         method, url, body = self.build_exchange_request(plan_name, plan_info)
-        result = self.request_json(driver, url, method=method, body=body)
+        result = self.request_json(session, url, method=method, body=body)
         return result.get("code"), result.get("message", "")
 
-    def auto_exchange(self, driver):
+    def auto_exchange(self, session):
         try:
-            points_data = self.get_points(driver)
+            points_data = self.get_points(session)
         except Exception as e:
             print(f"查询积分失败：{e}")
             return "- 自动兑换：积分查询异常，已跳过"
@@ -166,7 +255,7 @@ class Checkin:
             return None
 
         try:
-            code, message = self.exchange_points(driver, plan_name, plan_info)
+            code, message = self.exchange_points(session, plan_name, plan_info)
         except Exception as e:
             print(f"兑换 {plan_name} 失败：{e}")
             return f"- 自动兑换：{plan_name} 兑换请求异常（{e}）"
@@ -184,38 +273,28 @@ class Checkin:
         return info
 
     def auto_check(self, cookie_string, auto_exchange=False):
-        driver = None
+        session = None
         try:
-            driver = self.build_driver()
+            session = self.open_session(cookie_string)
 
-            driver.get(self.BASE_URL)
-            self.load_cookies(driver, cookie_string)
-            driver.get(self.BASE_URL)
-            WebDriverWait(driver, self.CHALLENGE_TIMEOUT).until(
-                lambda x: x.title != "Just a moment..."
-            )
-
-            checkin_code, checkin_message = self.get_checkin(driver)
+            checkin_code, checkin_message = self.get_checkin(session)
 
             if checkin_code not in self.SUCCESS_CODES:
                 print(f"GLaDOS 签到未成功：code={checkin_code} {checkin_message}")
                 return checkin_code, [checkin_message]
 
-            status_message = self.get_status(driver)
+            status_message = self.get_status(session)
             messages = [checkin_message, status_message]
 
             if auto_exchange:
-                exchange_message = self.auto_exchange(driver)
+                exchange_message = self.auto_exchange(session)
                 if exchange_message:
                     messages.append(exchange_message)
         except Exception as e:
             print(f"GLaDOS 签到失败：{type(e).__name__}: {e}")
             return self.CODE_REQUEST_ERROR, [f"请求异常：{type(e).__name__}: {e}"]
         finally:
-            if driver is not None:
-                try:
-                    driver.quit()
-                except Exception:
-                    pass
+            if session is not None:
+                session.close()
 
         return checkin_code, messages

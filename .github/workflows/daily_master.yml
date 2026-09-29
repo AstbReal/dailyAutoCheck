@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,6 +23,10 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       - run: pip install -r ./requirements.txt
+
+      # 签到走 playwright 而不是系统 Chrome，所以需要单独装一份浏览器（含系统依赖）
+      - name: Install playwright chromium
+        run: playwright install --with-deps chromium
 
       # 把所有 Secret 注入到后续步骤的环境变量里（脚本按 GLADOS_USER_*/NOTICES 前缀自动扫描）
       - name: Inject secrets into environment

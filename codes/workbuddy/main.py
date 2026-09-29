@@ -1,9 +1,9 @@
 # encoding=utf8
 import sys
 
-from codes.config import Config
-from codes.notice import MsgSender
-from codes.workbuddy.checkin import WorkBuddyCheckin
+from ..config import Config
+from ..notice import MsgSender
+from .checkin import WorkBuddyCheckin
 
 USER_PREFIX = 'WORKBUDDY_USER_'
 NOTICES_ENV = 'NOTICES'

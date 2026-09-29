@@ -1,7 +1,7 @@
 # encoding=utf8
-from codes.notice import MsgSender
-from codes.glados.checkin import Checkin
-from codes.config import Config
+from ..notice import MsgSender
+from .checkin import Checkin
+from ..config import Config
 
 SUCCESS = True
 FAIL = False

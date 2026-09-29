@@ -15,6 +15,7 @@
 
 ```
 codes/
+├── __init__.py  # 各层都要有，否则会被 site-packages 里的同名包吞掉
 ├── config.py    # 共用：用户与通知配置加载（扫描 GLADOS_USER_* / WORKBUDDY_USER_* 环境变量）
 ├── notice.py    # 共用：通知发送（Server酱/Pushplus/企业微信/Bark）
 ├── glados/      # GLaDOS 签到，入口 glados/main.py
@@ -27,6 +28,31 @@ codes/
 两套签到完全独立：各自有独立的 main 入口和 GitHub Action，互不影响；共用配置加载（config.py）、通知体系（notice.py）和共享通知变量 `NOTICES`。
 
 > Actions 会先用一步把所有 Secret 写入 `GITHUB_ENV`，脚本再通过 `os.environ` 按前缀自动扫描。这样新增账号只需在 Secrets 里加一个变量，不用改 workflow。
+
+## 浏览器方案
+
+GLaDOS 有 Cloudflare 反爬，必须在真实浏览器里请求，因此**统一用 playwright + 自带的 chromium**，
+一套代码同时跑 GitHub Actions 和呆呆面板，不再依赖系统 Chrome / selenium / undetected_chromedriver。
+
+依赖只有两个（见 `requirements.txt`）：
+
+```
+playwright==1.63.0
+requests
+```
+
+装完包还要装浏览器：
+
+```bash
+pip install -r requirements.txt
+playwright install --with-deps chromium   # macOS 上可省 --with-deps
+```
+
+`Checkin.resolve_browsers_path()` 会依次尝试 `PLAYWRIGHT_BROWSERS_PATH` → 面板自带目录 →
+`~/.cache/ms-playwright`，所以两个环境不用改代码就能直接找到浏览器。
+
+> 为什么不用系统 Chrome？GitHub Actions 的 ubuntu runner 确实自带 Chrome 和 ChromeDriver，
+> 但面板容器里没有；为了两边一套代码，统一走 playwright 自带的 chromium。
 
 ## Secrets 配置（前缀变量模式）
 
@@ -121,6 +147,7 @@ WorkBuddy 账号（用 `access_token`）：
 
 1. 通过 Github Action 自动定时运行 [codes/workbuddy/main.py](./codes/workbuddy/main.py)，调用 WorkBuddy 的签到接口领取每日积分。
 2. 通知复用本项目的通知体系，共享配置 `NOTICES` 与 GLaDOS 通用。
+3. 这条链路只用 `requests`，不需要浏览器，因此 workflow 里也不用装 chromium。
 
 ### 配置方法：
 
@@ -143,8 +170,52 @@ WorkBuddy 账号（用 `access_token`）：
    ```
 3. 每天自动触发，可在 [workbuddy_checkin.yml](.github/workflows/workbuddy_checkin.yml) 中修改 cron，也可在 Actions 页面手动触发（workflow_dispatch）。
 
+## 部署到呆呆面板（Dumb-Panel）
+
+除了 GitHub Actions，本仓库也可以直接跑在自建的呆呆面板上。两边**共用同一套代码、同一个浏览器方案**：
+
+| 项 | GitHub Actions | 呆呆面板（容器） |
+| --- | --- | --- |
+| 浏览器 | workflow 里 `playwright install --with-deps chromium` | 面板自带 playwright + chromium |
+| 浏览器目录 | 默认 `~/.cache/ms-playwright` | 已由面板设好 `PLAYWRIGHT_BROWSERS_PATH` |
+| Python | 3.10 | 3.12 |
+| 运行目录 | 仓库根目录 | 脚本目录 `/app/Dumb-Panel/scripts` |
+| 任务命令 | `python -m codes.glados.main` | `python -m AstbReal_dailyAutoCheck.codes.glados.main` |
+
+面板任务只有一个差异：面板用 `runpy.run_module()` 在面板 python 进程里执行 `command`，
+所以 `command` 填的是**模块路径**而不是 shell 命令；`task_before` 里的 `cd` 也不会传给主命令。
+
+四个必踩的坑（已在本仓库代码里处理，改动时勿回退）：
+
+1. **包名遮蔽**：容器 site-packages 里装有 PyPI 的 `codes 0.1.5`（与本地 `codes/` 目录同名）。
+   如果 `codes/` 没有 `__init__.py`，它只是命名空间包，会输给已安装的真实包，
+   报 `ModuleNotFoundError: No module named 'codes.glados'`。因此仓库内统一用**相对导入**
+   （`from ..notice import ...`），并补齐了各层 `__init__.py`（`.gitignore` 里**不能再忽略**
+   `__init__.py`，否则文件进不了仓库，这个坑会在新环境重现）。
+2. **反爬判定**：GLaDOS 会拒掉 `HeadlessChrome` 和 **Linux 平台**的 UA，
+   返回 `code=4 Automated check-in detected`。因此 `Checkin.resolve_user_agent()`
+   统一伪装成 Windows 桌面版 Chrome（版本号沿用浏览器真实主版本），并配合反自动化 init script。
+3. **SPA 卡住 DOMContentLoaded**：站点部分子资源会长期挂起，导致 `DOMContentLoaded` 永不触发，
+   所以 Playwright 用 `wait_until="commit"` 导航，不等待 document 加载完成。
+4. **浏览器目录**：面板的 chromium 不在默认缓存目录，靠 `PLAYWRIGHT_BROWSERS_PATH` 定位；
+   `resolve_browsers_path()` 做了三级回退，两个环境都不用配。
+
 ## 更新：
 
+- [2026-09-29](./README.md)
+
+  - **统一浏览器方案**：GLaDOS 签到不再分两套，一律走 playwright + 自带的 chromium
+    （原来是 selenium + undetected_chromedriver）。面板容器没有系统 Chrome，
+    而 playwright 的 chromium 在两边都能用，从此只剩一条代码路径
+  - `requirements.txt`：移除 `selenium` / `undetected_chromedriver`，改为 `playwright==1.63.0`
+  - `daily_master.yml`：runner 由 `macos-14` 改为 `ubuntu-latest`（原来用 mac 只是因为镜像自带 Chrome，
+    改用 playwright 后不再需要，ubuntu 计费低得多），并新增一步 `playwright install --with-deps chromium`
+  - 浏览器 UA 伪装为 Windows 桌面版 Chrome：GLaDOS 反爬会拒掉 `HeadlessChrome` 与
+    **Linux 平台** UA（返回 `code=4 Automated check-in detected`）
+  - GLaDOS 是 SPA，部分子资源长期挂起导致 `DOMContentLoaded` 永不触发，改用 `wait_until="commit"` 导航
+  - 仓库内导入改为相对导入，并补齐 `codes` / `codes/glados` / `codes/workbuddy` 的 `__init__.py`，
+    同时从 `.gitignore` 移除对 `__init__.py` 的忽略，
+    避免与 site-packages 里的同名 `codes` 包（PyPI `codes 0.1.5`）冲突
 - [2026-09-25](./README.md)
 
   - GLaDOS 账号配置新增 `auto_exchange` 开关（默认 `false`）：签到后查询积分，满足最高档套餐即自动兑换
