@@ -34,11 +34,11 @@ codes/
 GLaDOS 有 Cloudflare 反爬，必须在真实浏览器里请求，因此**统一用 playwright + 自带的 chromium**，
 一套代码同时跑 GitHub Actions 和呆呆面板，不再依赖系统 Chrome / selenium / undetected_chromedriver。
 
-依赖只有两个（见 `requirements.txt`）：
+依赖只有两个（见 `requirements.txt`），版本钉死且与面板环境完全一致，两边跑的是同一套浏览器：
 
 ```
 playwright==1.63.0
-requests
+requests==2.34.2
 ```
 
 装完包还要装浏览器：
@@ -147,7 +147,8 @@ WorkBuddy 账号（用 `access_token`）：
 
 1. 通过 Github Action 自动定时运行 [codes/workbuddy/main.py](./codes/workbuddy/main.py)，调用 WorkBuddy 的签到接口领取每日积分。
 2. 通知复用本项目的通知体系，共享配置 `NOTICES` 与 GLaDOS 通用。
-3. 这条链路只用 `requests`，不需要浏览器，因此 workflow 里也不用装 chromium。
+3. 这条链路只用 `requests`，不需要浏览器，所以 workflow 里没有装 chromium 的步骤；
+   依赖仍与 GLaDOS 共用同一份 `requirements.txt`，两个 workflow 只有「是否装浏览器」这一步不同。
 
 ### 配置方法：
 
@@ -176,9 +177,10 @@ WorkBuddy 账号（用 `access_token`）：
 
 | 项 | GitHub Actions | 呆呆面板（容器） |
 | --- | --- | --- |
+| Python | 3.12 | 3.12 |
+| 依赖 | `pip install -r requirements.txt`（版本与面板一致） | 面板已装好同名同版本 |
 | 浏览器 | workflow 里 `playwright install --with-deps chromium` | 面板自带 playwright + chromium |
 | 浏览器目录 | 默认 `~/.cache/ms-playwright` | 已由面板设好 `PLAYWRIGHT_BROWSERS_PATH` |
-| Python | 3.10 | 3.12 |
 | 运行目录 | 仓库根目录 | 脚本目录 `/app/Dumb-Panel/scripts` |
 | 任务命令 | `python -m codes.glados.main` | `python -m AstbReal_dailyAutoCheck.codes.glados.main` |
 
@@ -216,6 +218,10 @@ WorkBuddy 账号（用 `access_token`）：
   - 仓库内导入改为相对导入，并补齐 `codes` / `codes/glados` / `codes/workbuddy` 的 `__init__.py`，
     同时从 `.gitignore` 移除对 `__init__.py` 的忽略，
     避免与 site-packages 里的同名 `codes` 包（PyPI `codes 0.1.5`）冲突
+  - **运行环境与依赖对齐面板**：两个 workflow 的 Python 都由 3.10 改为 **3.12**，
+    `actions/checkout` / `actions/setup-python` 由 v4 升到 v6
+  - `requirements.txt` 补齐 `requests==2.34.2`（此前不锁版本），
+    workbuddy 与 GLaDOS 两条 workflow 共用这一份依赖，避免两处版本漂移
 - [2026-09-25](./README.md)
 
   - GLaDOS 账号配置新增 `auto_exchange` 开关（默认 `false`）：签到后查询积分，满足最高档套餐即自动兑换

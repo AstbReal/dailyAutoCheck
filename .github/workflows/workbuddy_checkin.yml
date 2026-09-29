@@ -10,13 +10,14 @@ jobs:
   checkin:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: master
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           cache: 'pip'
+      # 与 daily-master 共用同一份 requirements.txt，避免两个 workflow 的依赖版本漂移
       - run: pip install -r ./requirements.txt
 
       # 把所有 Secret 注入到后续步骤的环境变量里（脚本按 WORKBUDDY_USER_*/NOTICES 前缀自动扫描）
