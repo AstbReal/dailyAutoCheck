@@ -20,6 +20,7 @@ codes/
 ├── notice.py    # 共用：通知发送（Server酱/Pushplus/企业微信/Bark）
 ├── glados/      # GLaDOS 签到，入口 glados/main.py
 └── workbuddy/   # WorkBuddy 签到，入口 workbuddy/main.py
+                 # 其中 at_rest.py 负责解密桌面端加密的登录态，gen_data.py 用它提取 accessToken
 .github/workflows/
 ├── daily_master.yml       # GLaDOS 签到的 Action
 └── workbuddy_checkin.yml  # WorkBuddy 签到的 Action
@@ -94,11 +95,13 @@ WorkBuddy 账号（用 `access_token`）：
 - `cookies` / `access_token`：必填，账号凭据
 - `auto_exchange`：选填，**仅 GLaDOS 使用**，是否在签到后自动兑换积分，默认 `false`（不写即关闭），见下方[自动兑换最高档套餐](#自动兑换最高档套餐)
 - `notice`：选填，该账号的通知渠道，三种写法：
+
   1. `"企业微信"` —— 字符串，引用 `NOTICES` 里的同名条目（**推荐**）
   2. `{"name": "企业微信", "data": {...}}` —— 单通道写法
   3. `{"WECOM": {...}, "SERVER_SCKEY": "..."}` —— 完整写法，可同时配多个通道
 
   通道支持的配置键（与 notice.py 对应）：
+
   - `WECOM`（企业微信自建应用）：`TYPE`（`text`/`markdown`，默认 text）、`SECRET`、`ENTERPRISE_ID`、`APP_ID`
   - `WECOM_WEBHOOK`（企业微信机器人）
   - `SERVER_SCKEY`（Server酱）
@@ -138,6 +141,7 @@ WorkBuddy 账号（用 `access_token`）：
 
    ![image-20230217123549516](resource/README/image-20230217123549516.png)
 3. 在自己刚刚Fork过来的仓库里的“Settings → Secrets and variables → Actions”里创建 Secrets：
+
    - `NOTICES`（选填）：共享通知配置，见上
    - `GLADOS_USER_SULIVIA`（**必填**，每账号一个）：JSON 格式填入（支持换行/缩进，**无需压缩**），此处提供 [json在线检查](https://www.sojson.com/)
 4. 以上设置完毕后，每天上午10点会自动触发，并会执行自动签到，并发送通知，如要修改请修改[daily_master.yml](.github/workflows/daily_master.yml)文件中的cron语句。
@@ -152,17 +156,24 @@ WorkBuddy 账号（用 `access_token`）：
 
 ### 配置方法：
 
-1. 获取 accessToken：WorkBuddy/CodeBuddy 桌面端登录后，在本地 auth 文件中获取（macOS 路径：`~/Library/Application Support/CodeBuddyExtension/Data/Public/auth/workbuddy-desktop.info`），取其中 `auth.accessToken` 字段的值。
+1. 获取 accessToken。
 
-   > 也可以直接用脚本自动提取（Windows / macOS / Linux 通用）：
+   WorkBuddy 桌面端登录后会把登录态写在本地 auth 文件里（Windows：`%LOCALAPPDATA%\CodeBuddyExtension\Data\Public\auth\workbuddy-desktop.info`，macOS：`~/Library/Application Support/CodeBuddyExtension/Data/Public/auth/workbuddy-desktop.info`）。
+
+   > 注意：该文件里的 `auth.accessToken`、`account.nickname` 等敏感字段**已加密**（形如 `{"$wbEncrypted": 1, "envelope": "..."}`），直接打开抄不出来，所以要用下面的脚本提取。
+   >
    > ```bash
    > python -m codes.workbuddy.gen_data            # 生成到 workbuddy_user.txt
    > python -m codes.workbuddy.gen_data --print    # 只打印，不写文件
    > python -m codes.workbuddy.gen_data -n Andy    # 指定账号名（决定变量名后缀）
    > ```
-   > 脚本会自动定位本机登录态并输出 `变量名=JSON` 格式的一行，整行复制到仓库 Secrets 即可；
-   > 若输出文件已存在，会复用其中的 notice 通知配置，只刷新 token。
+   >
+   > 脚本会自动定位登录态、向桌面端取解密密钥、解开 token，并输出 `变量名=JSON` 格式的一行，整行复制到仓库 Secrets 即可；若输出文件已存在，会复用其中的 notice 通知配置，只刷新 token。
+   >
+   > 解密依赖本机装有 WorkBuddy 桌面端（脚本自动查找 `WorkBuddy.exe`）；装在非常规目录时，用环境变量 `WORKBUDDY_EXE` 指定它的完整路径。
+   >
 2. 在仓库 Settings → Secrets 中创建：
+
    - `NOTICES`（选填）：与 GLaDOS 共用
    - `WORKBUDDY_USER_ANDY`（**必填**，每账号一个）：
 
@@ -175,14 +186,14 @@ WorkBuddy 账号（用 `access_token`）：
 
 除了 GitHub Actions，本仓库也可以直接跑在自建的呆呆面板上。两边**共用同一套代码、同一个浏览器方案**：
 
-| 项 | GitHub Actions | 呆呆面板（容器） |
-| --- | --- | --- |
-| Python | 3.12 | 3.12 |
-| 依赖 | `pip install -r requirements.txt`（版本与面板一致） | 面板已装好同名同版本 |
-| 浏览器 | workflow 里 `playwright install --with-deps chromium` | 面板自带 playwright + chromium |
-| 浏览器目录 | 默认 `~/.cache/ms-playwright` | 已由面板设好 `PLAYWRIGHT_BROWSERS_PATH` |
-| 运行目录 | 仓库根目录 | 脚本目录 `/app/Dumb-Panel/scripts` |
-| 任务命令 | `python -m codes.glados.main` | `python -m AstbReal_dailyAutoCheck.codes.glados.main` |
+| 项         | GitHub Actions                                         | 呆呆面板（容器）                                        |
+| ---------- | ------------------------------------------------------ | ------------------------------------------------------- |
+| Python     | 3.12                                                   | 3.12                                                    |
+| 依赖       | `pip install -r requirements.txt`（版本与面板一致）  | 面板已装好同名同版本                                    |
+| 浏览器     | workflow 里`playwright install --with-deps chromium` | 面板自带 playwright + chromium                          |
+| 浏览器目录 | 默认`~/.cache/ms-playwright`                         | 已由面板设好`PLAYWRIGHT_BROWSERS_PATH`                |
+| 运行目录   | 仓库根目录                                             | 脚本目录`/app/Dumb-Panel/scripts`                     |
+| 任务命令   | `python -m codes.glados.main`                        | `python -m AstbReal_dailyAutoCheck.codes.glados.main` |
 
 面板任务只有一个差异：面板用 `runpy.run_module()` 在面板 python 进程里执行 `command`，
 所以 `command` 填的是**模块路径**而不是 shell 命令；`task_before` 里的 `cd` 也不会传给主命令。
@@ -204,6 +215,16 @@ WorkBuddy 账号（用 `access_token`）：
 
 ## 更新：
 
+- [2026-10-08](./README.md)
+
+  - **适配桌面端登录态加密**：`workbuddy-desktop.info` 里的 `auth.accessToken` / `account.nickname` 等字段
+    已被桌面端改为 `{"$wbEncrypted":1,"envelope":"..."}` 加密信封，`gen_data.py` 原本「读明文 JWT」的逻辑失效
+  - 新增 [codes/workbuddy/at_rest.py](./codes/workbuddy/at_rest.py)：零依赖的 AES-256-GCM 解密实现，
+    按桌面端的 `WB-AAD` 构造算出 AAD，解开信封字段
+  - 密钥来源：向 `WorkBuddy.exe`（`ELECTRON_RUN_AS_NODE` 模式）调用其内置 binding
+    `electron_browser_workbuddy_storage.loggerGet()` 取到 `atRestSecretKey`，再 `sha256` 派生出 32 字节密钥，
+    所以解 token 需要本机装着桌面端；找不到可执行文件时用 `WORKBUDDY_EXE` 指定
+  - `gen_data.py` 不再用裸 `except` 吞异常：取不到 token 或信封解析失败都会给出明确报错
 - [2026-09-29](./README.md)
 
   - **统一浏览器方案**：GLaDOS 签到不再分两套，一律走 playwright + 自带的 chromium
