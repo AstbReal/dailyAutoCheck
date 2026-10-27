@@ -1,6 +1,7 @@
 # encoding=utf8
 import json
 import os
+import re
 import time
 
 PANEL_BROWSERS_PATH = "/app/Dumb-Panel/deps/ms-playwright"
@@ -67,6 +68,10 @@ class Checkin:
     CHECKIN_URL = BASE_URL + "/api/user/checkin"
     STATUS_URL = BASE_URL + "/api/user/status"
     POINTS_URL = BASE_URL + "/api/user/points"
+    EXCHANGE_URL = BASE_URL + "/api/user/exchange"
+    EXCHANGE_ACCEPT = "application/json, text/plain, */*"
+    EXCHANGE_RETRIES = 3
+    EXCHANGE_RETRY_DELAY = 3
     COOKIE_DOMAIN = "www.glados.vip"
 
     CHECKIN_TOKEN = "www.glados.vip"
@@ -120,8 +125,6 @@ class Checkin:
       }
     }
     """
-
-    EXCHANGE_URL = ""
 
     @classmethod
     def resolve_user_agent(cls, browser):
@@ -217,16 +220,43 @@ class Checkin:
 
         return best_name, best_info
 
-    def build_exchange_request(self, plan_name, plan_info):
-        return "POST", self.EXCHANGE_URL, json.dumps({"plan": plan_name})
+    @staticmethod
+    def format_points(value):
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return None
+        if number == int(number):
+            return str(int(number))
+        return f"{number:.2f}"
 
-    def exchange_points(self, session, plan_name, plan_info):
-        if not self.EXCHANGE_URL:
-            return None, "自动兑换接口尚未接入，本次跳过兑换"
+    @staticmethod
+    def tidy_message(message):
+        return re.sub(r"(\d+)\.0+(?![\d])", r"\1", (message or "").strip())
 
-        method, url, body = self.build_exchange_request(plan_name, plan_info)
-        result = self.request_json(session, url, method=method, body=body)
-        return result.get("code"), result.get("message", "")
+    @staticmethod
+    def exchanged_dates(points_data):
+        dates = set()
+        for item in points_data.get("history") or []:
+            business = str(item.get("business") or "")
+            if business.startswith("system:ex:"):
+                dates.add(business.rsplit(":", 1)[-1])
+        return dates
+
+    @staticmethod
+    def latest_checkin_date(points_data):
+        dates = [str(item.get("detail") or "") for item in points_data.get("history") or []
+                 if str(item.get("business") or "") == "system:checkin"]
+        dates = [date for date in dates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date)]
+        return max(dates) if dates else ""
+
+    def build_exchange_request(self, plan_name):
+        return "POST", self.EXCHANGE_URL, json.dumps({"planType": plan_name})
+
+    def exchange_points(self, session, plan_name):
+        method, url, body = self.build_exchange_request(plan_name)
+        return self.request_json(
+            session, url, method=method, body=body, accept=self.EXCHANGE_ACCEPT)
 
     def auto_exchange(self, session):
         try:
@@ -238,6 +268,11 @@ class Checkin:
         if points_data.get("code") != 0:
             print(f"查询积分返回异常：{points_data}")
             return f"- 自动兑换：积分查询失败（code={points_data.get('code')}）"
+
+        today = self.latest_checkin_date(points_data)
+        if today and today in self.exchanged_dates(points_data):
+            print(f"{today} 已经兑换过，跳过自动兑换")
+            return None
 
         try:
             current = float(points_data.get("points") or 0)
@@ -254,21 +289,40 @@ class Checkin:
             print(f"当前积分 {current:.0f}，未达到 {plan_name}（{need:.0f}），本次不兑换")
             return None
 
-        try:
-            code, message = self.exchange_points(session, plan_name, plan_info)
-        except Exception as e:
-            print(f"兑换 {plan_name} 失败：{e}")
-            return f"- 自动兑换：{plan_name} 兑换请求异常（{e}）"
+        result, error = None, ""
+        for attempt in range(1, self.EXCHANGE_RETRIES + 1):
+            try:
+                result = self.exchange_points(session, plan_name)
+                break
+            except Exception as e:
+                error = f"{type(e).__name__}: {e}"
+                print(f"兑换 {plan_name} 第 {attempt} 次请求失败：{error}")
+                if attempt < self.EXCHANGE_RETRIES:
+                    time.sleep(self.EXCHANGE_RETRY_DELAY)
 
-        if code is None:
-            print(message)
-            return None
+        if result is None:
+            info = f"- 自动兑换：{plan_name} 兑换请求失败（{self.EXCHANGE_RETRIES} 次尝试均异常：{error}）"
+            print(info)
+            return info
 
-        days = plan_info.get("days")
-        if code == 0:
-            info = f"- 自动兑换：{plan_name} 兑换成功（消耗 {need:.0f} 积分，+{days} 天）"
-        else:
-            info = f"- 自动兑换：{plan_name} 兑换失败（{message}）"
+        code = result.get("code")
+        if code != 0:
+            message = self.tidy_message(result.get("message"))
+            info = f"- 自动兑换：{plan_name} 兑换失败（{message}）" if message \
+                else f"- 自动兑换：{plan_name} 兑换失败（code={code}）"
+            print(info)
+            return info
+
+        used = self.format_points(result.get("pointsUsed")) or f"{need:.0f}"
+        days = result.get("daysAdded") or plan_info.get("days")
+        detail = f"消耗 {used} 积分"
+        if days:
+            detail += f"，+{days} 天"
+        balance = self.format_points(result.get("points"))
+        if balance is not None:
+            detail += f"，余额 {balance}"
+
+        info = f"- 自动兑换：{plan_name} 兑换成功（{detail}）"
         print(info)
         return info
 

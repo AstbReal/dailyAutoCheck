@@ -117,22 +117,26 @@ WorkBuddy 账号（用 `access_token`）：
 
 1. 查询 `GET /api/user/points`，拿到当前 `points` 与所有 `plans`；
 2. 从 `plans`（`plan100` / `plan200` / `plan500`）中挑出所需积分**最高**的那档；
-3. 若当前积分 ≥ 该档所需积分，则自动兑换。
+3. 若当前积分 ≥ 该档所需积分，则调 `POST /api/user/exchange`，body 为 `{"planType": "plan500"}`（键名直接取 `plans` 里的套餐名）。
 
 行为说明：
 
 - 积分不足时只打印日志、不发送通知，不会有额外打扰；
-- 兑换成功 / 失败会作为一行附加信息，出现在原有的签到通知里；
+- 兑换成功 / 失败会作为一行附加信息，出现在原有的签到通知里，
+  形如 `- 自动兑换：plan500 兑换成功（消耗 500 积分，+100 天，余额 98）`，
+  天数与余额取自响应里的 `daysAdded` / `points`；
 - 积分查询异常不会中断签到，只在通知里提示「已跳过」。
 
 ```json
 {"name": "Sulivia", "cookies": "koa:sess=xxx", "notice": "企业微信", "auto_exchange": true}
 ```
 
-> ⚠️ 兑换接口尚未接入：`codes/glados/checkin.py` 中的 `Checkin.EXCHANGE_URL` 目前是空字符串，
-> 此时即使开关打开也不会发出任何兑换请求，仅提示「接口尚未接入」。
-> 拿到真实接口后，只需填 `EXCHANGE_URL` 并按文档调整 `build_exchange_request()` 里的
-> 请求方法和 body 字段，其余流程无需改动。
+> 兑换只在**签到成功**后触发，且**当天兑换过就跳过**：从 `GET /api/user/points` 返回的 `history` 里
+> 取最近一条 `system:checkin` 的日期当作「今天」，若已存在 `system:ex:<套餐>:<同一天>` 记录则不兑换。
+> 签到在当天重复请求仍返回 `code=1`，二次兑换就靠这条去重挡住。
+>
+> 兑换请求异常会重试 3 次（间隔 3 秒），仍失败才在通知里留一行；业务失败（如积分不足）不重试。
+> 每次运行最多兑换一次，不循环。
 
 ## 食用姿势（GLaDOS）：
 
@@ -215,6 +219,18 @@ WorkBuddy 账号（用 `access_token`）：
 
 ## 更新：
 
+- [2026-10-27](./README.md)
+
+  - **接入 GLaDOS 兑换接口**：`Checkin.EXCHANGE_URL` 补为 `/api/user/exchange`，
+    请求体字段改为实测的 `planType`（此前占位写法是 `plan`）
+  - `exchange_points()` 现在返回完整响应体，兑换结果里的天数与余额直接取自
+    `daysAdded` / `points`，不再依赖本地 `plans` 里的配置值
+  - 去掉「接口尚未接入」的分支；兑换失败会带 `message` 一起进通知
+  - 新增**当日去重**：用 `history` 里最近一条 `system:checkin` 的日期作「今天」，
+    已有 `system:ex:<套餐>:<同日>` 记录就跳过，避免同日重复运行二次兑换
+  - 兑换请求异常改为重试 3 次（间隔 3 秒），仍失败才写入通知；业务失败不重试
+  - 实测注意：兑换失败返回的是 `code=1`（"Not enough points. Need 500, have 98"），
+    与签到成功的 `code=1` 撞号，因此兑换判定用 `code != 0`，不能复用 `SUCCESS_CODES`
 - [2026-10-08](./README.md)
 
   - **适配桌面端登录态加密**：`workbuddy-desktop.info` 里的 `auth.accessToken` / `account.nickname` 等字段
