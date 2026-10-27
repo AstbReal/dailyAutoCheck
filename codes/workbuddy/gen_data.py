@@ -1,10 +1,14 @@
 # encoding=utf8
+from __future__ import annotations
+
 import argparse
 import base64
+import hashlib
 import json
 import os
 import platform
 import re
+import sys
 from datetime import datetime
 
 from . import at_rest
@@ -84,7 +88,36 @@ def load_existing(path: str) -> dict:
 
 def var_suffix(name: str) -> str:
     suffix = re.sub(r"[^A-Za-z0-9_]", "_", name).upper().strip("_")
-    return suffix or "DEFAULT"
+    if suffix:
+        return suffix
+    return "U" + hashlib.sha1(name.encode("utf-8")).hexdigest()[:8].upper()
+
+
+def console_encoding() -> str:
+    return sys.stdout.encoding or "utf-8"
+
+
+def can_encode(text: str) -> bool:
+    try:
+        text.encode(console_encoding())
+        return True
+    except UnicodeEncodeError:
+        return False
+
+
+def emit(text: str) -> None:
+    encoding = console_encoding()
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        print(text.encode(encoding, "backslashreplace").decode(encoding, "replace"))
+
+
+def build_line(var_name: str, data: dict) -> str:
+    line = f"{var_name}={json.dumps(data, ensure_ascii=False, separators=(',', ':'))}"
+    if can_encode(line):
+        return line
+    return f"{var_name}={json.dumps(data, ensure_ascii=True, separators=(',', ':'))}"
 
 
 def main():
@@ -103,23 +136,23 @@ def main():
         data["notice"] = existing["notice"]
 
     var_name = f"{DEFAULT_PREFIX}{var_suffix(name)}"
-    result = f"{var_name}={json.dumps(data, ensure_ascii=False, separators=(',', ':'))}"
+    result = build_line(var_name, data)
 
     if args.print:
-        print(result)
+        emit(result)
         return
 
     with open(args.output, "w", encoding="utf-8") as f:
         f.write(result + "\n")
 
-    print(f"已生成: {os.path.abspath(args.output)}")
-    print(f"账号: {name}")
+    emit(f"已生成: {os.path.abspath(args.output)}")
+    emit(f"账号: {name}")
     if exp:
-        print(f"token 有效期至: {datetime.fromtimestamp(exp)}")
+        emit(f"token 有效期至: {datetime.fromtimestamp(exp)}")
     if existing.get("notice"):
-        print(f"已保留通知配置: {json.dumps(existing['notice'], ensure_ascii=False)}")
-    print("\n复制整行内容，在仓库 Secrets 新建同名变量（如 " + var_name + "）粘贴即可")
-    print("共享通知渠道请配置在 NOTICES 变量中，账号里的 notice 填渠道名称字符串即可引用")
+        emit(f"已保留通知配置: {json.dumps(existing['notice'], ensure_ascii=False)}")
+    emit("\n复制整行内容，在仓库 Secrets 新建同名变量（如 " + var_name + "）粘贴即可")
+    emit("共享通知渠道请配置在 NOTICES 变量中，账号里的 notice 填渠道名称字符串即可引用")
 
 
 if __name__ == "__main__":
