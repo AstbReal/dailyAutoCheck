@@ -4,6 +4,8 @@
 accessToken 通过 WORKBUDDY_DATA 环境变量（Secrets）配置，
 通知统一走 codes/notice.py 的 MsgSender。
 """
+from __future__ import annotations
+
 from datetime import datetime
 
 import requests
