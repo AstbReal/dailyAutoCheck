@@ -1,4 +1,5 @@
 # encoding=utf8
+import hashlib
 import json
 import os
 import re
@@ -6,14 +7,17 @@ import time
 
 PANEL_BROWSERS_PATH = "/app/Dumb-Panel/deps/ms-playwright"
 DEFAULT_BROWSERS_PATH = os.path.expanduser("~/.cache/ms-playwright")
+# playwright 在 macOS 上的默认缓存目录与 Linux 不同
+MAC_BROWSERS_PATH = os.path.expanduser("~/Library/Caches/ms-playwright")
 
 
 def resolve_browsers_path() -> str:
-    """定位 playwright 浏览器目录：环境变量 > 面板自带 > 默认缓存目录。"""
+    """定位 playwright 浏览器目录：环境变量 > 面板自带 > 默认缓存目录（Linux/macOS）。"""
     candidates = (
         os.getenv("PLAYWRIGHT_BROWSERS_PATH"),
         PANEL_BROWSERS_PATH,
         DEFAULT_BROWSERS_PATH,
+        MAC_BROWSERS_PATH,
     )
     for path in candidates:
         if path and os.path.isdir(path):
@@ -64,22 +68,33 @@ class BrowserSession:
 
 
 class Checkin:
-    BASE_URL = "https://www.glados.vip"
+    BASE_URL = "https://glados.vip"
     CHECKIN_URL = BASE_URL + "/api/user/checkin"
+    CHALLENGE_URL = BASE_URL + "/api/user/checkin/challenge"
     STATUS_URL = BASE_URL + "/api/user/status"
     POINTS_URL = BASE_URL + "/api/user/points"
     EXCHANGE_URL = BASE_URL + "/api/user/exchange"
     EXCHANGE_ACCEPT = "application/json, text/plain, */*"
     EXCHANGE_RETRIES = 3
     EXCHANGE_RETRY_DELAY = 3
-    COOKIE_DOMAIN = "www.glados.vip"
+    COOKIE_DOMAIN = "glados.vip"
 
-    CHECKIN_TOKEN = "www.glados.vip"
+    CHECKIN_TOKEN = "glados.vip"
+
+    # 2026-11 起的签到协议：先 GET challenge 领取 nonce（TTL 约 5 分钟），
+    # 本地计算 proof = sha256("{nonce}.glados-observe-v1")，与网页端一致停 2.5 秒再提交；
+    # 不带 nonce/proof 的旧协议仍会被接受，但按降级给分（11-04 起实测每天只有 1 分）。
+    # 算法已用浏览器抓包的 nonce/proof 对交叉验证（2026-11-17）。
+    CHALLENGE_SUFFIX = "glados-observe-v1"
+    CHALLENGE_DELAY = 2.5
 
     SUCCESS_CODES = (0, 1)
     CODE_COOKIE_INVALID = -2
     CODE_AUTOMATED = 4
     CODE_REQUEST_ERROR = -1
+    # challenge 返回 turnstile sitekey 时，说明该出口 IP 被要求在真实浏览器里完成
+    # Cloudflare Turnstile 人机验证（多见于机房 IP）。当前不做绕过，直接报错并跳过提交。
+    CODE_TURNSTILE = 5
 
     CHALLENGE_TIMEOUT = 240
     NAV_TIMEOUT = 30000
@@ -157,9 +172,28 @@ class Checkin:
         return result["data"]
 
     def get_checkin(self, session):
+        body = {"token": self.CHECKIN_TOKEN}
+
+        try:
+            challenge = self.request_json(session, self.CHALLENGE_URL)
+            if challenge.get("code") == 0 and challenge.get("nonce"):
+                if challenge.get("turnstile"):
+                    print(f"challenge 要求 Turnstile 人机验证"
+                          f"（sitekey={challenge['turnstile']}），跳过提交")
+                    return self.CODE_TURNSTILE, "触发 Cloudflare Turnstile 人机验证"
+                nonce = str(challenge["nonce"])
+                time.sleep(self.CHALLENGE_DELAY)
+                proof = hashlib.sha256(
+                    f"{nonce}.{self.CHALLENGE_SUFFIX}".encode()).hexdigest()
+                body.update({"nonce": nonce, "proof": proof})
+            else:
+                print(f"未取得 challenge（code={challenge.get('code')}），"
+                      f"按旧协议提交，可能只获得 1 积分")
+        except Exception as e:
+            print(f"获取 challenge 失败（{e}），按旧协议提交，可能只获得 1 积分")
+
         data = self.request_json(
-            session, self.CHECKIN_URL,
-            method="POST", body={"token": self.CHECKIN_TOKEN})
+            session, self.CHECKIN_URL, method="POST", body=body)
         return data.get("code"), data.get("message", "")
 
     def get_status(self, session):

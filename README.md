@@ -80,7 +80,7 @@ playwright install --with-deps chromium   # macOS 上可省 --with-deps
 GLaDOS 账号（用 `cookies`）：
 
 ```json
-{"name": "Sulivia", "cookies": "koa:sess=xxx; koa:sess.sig=xxx", "notice": "企业微信", "auto_exchange": false}
+{"name": "Sulivia", "cookies": "gld:sess=xxx; gld:sess.sig=xxx", "notice": "企业微信", "auto_exchange": false}
 ```
 
 WorkBuddy 账号（用 `access_token`）：
@@ -128,7 +128,7 @@ WorkBuddy 账号（用 `access_token`）：
 - 积分查询异常不会中断签到，只在通知里提示「已跳过」。
 
 ```json
-{"name": "Sulivia", "cookies": "koa:sess=xxx", "notice": "企业微信", "auto_exchange": true}
+{"name": "Sulivia", "cookies": "gld:sess=xxx; gld:sess.sig=xxx", "notice": "企业微信", "auto_exchange": true}
 ```
 
 > 兑换只在**签到成功**后触发，且**当天兑换过就跳过**：从 `GET /api/user/points` 返回的 `history` 里
@@ -142,6 +142,7 @@ WorkBuddy 账号（用 `access_token`）：
 
 1. 先“Fork”本仓库。（不需要修改任何文件！）
 2. 登录GLaDOS后获取cookies。（简单获取方法：点击我的账户，浏览器快捷键F12，打开调试窗口，点击“network”获取，刷新页面）
+   > 2026-11 起站点域名为 `glados.vip`，cookie 名由 `koa:sess` 改为 `gld:sess`（旧 cookie 已失效，需重新登录后复制**整串** cookie 填入）
 
    ![image-20230217123549516](resource/README/image-20230217123549516.png)
 3. 在自己刚刚Fork过来的仓库里的“Settings → Secrets and variables → Actions”里创建 Secrets：
@@ -219,6 +220,23 @@ WorkBuddy 账号（用 `access_token`）：
 
 ## 更新：
 
+- [2026-11-17](./README.md)
+
+  - **适配 GLaDOS 签到新协议（challenge/proof）**：2026-11 起旧 payload `{"token": ...}`
+    仍被接受但按降级给分（实测 11-04 起每天只有 1 分）。现在签到前先
+    `GET /api/user/checkin/challenge` 领取 nonce（TTL 约 5 分钟），本地计算
+    `proof = sha256("{nonce}.glados-observe-v1")`，停 2.5 秒后随
+    `{"token", "nonce", "proof"}` 一起提交（算法已用浏览器抓包交叉验证）
+  - challenge 响应携带 `turnstile` sitekey 时（多见于机房 IP）直接返回 `code=5`
+    并跳过提交，通知提示「触发 Cloudflare Turnstile 人机验证」，不做绕过；
+    challenge 获取失败则回退旧协议提交（可能只得 1 分）
+  - 站点域名与 cookie 名变更：`www.glados.vip` → `glados.vip`，cookie 由
+    `koa:sess` / `koa:sess.sig` 改为 `gld:sess` / `gld:sess.sig`；
+    cookie 解析改为整串透传（不挑名字），账号需重新登录复制新版 cookie
+  - 技术选型记录：实测 python `requests`/urllib3 的 TLS 握手会被 Cloudflare
+    直接 RST（Python 3.9 / 3.12 均如此）；`curl_cffi` 模拟 Chrome 指纹可通，
+    但此前使用触发过人机验证报错，且浏览器通道保留着过 Turnstile 的可能性，
+    故维持 playwright 方案不变
 - [2026-10-27](./README.md)
 
   - **接入 GLaDOS 兑换接口**：`Checkin.EXCHANGE_URL` 补为 `/api/user/exchange`，

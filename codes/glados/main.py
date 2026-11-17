@@ -13,6 +13,7 @@ FAIL_HINTS = {
     Checkin.CODE_COOKIE_INVALID: "cookie 可能已失效，请重新获取",
     Checkin.CODE_AUTOMATED: "被 GLaDOS 判定为自动化请求",
     Checkin.CODE_REQUEST_ERROR: "请求异常，请查看日志",
+    Checkin.CODE_TURNSTILE: "触发 Cloudflare Turnstile 人机验证（多见于机房 IP）",
 }
 
 
